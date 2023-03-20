@@ -65,7 +65,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mFragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false);
 
-        getListSongFromFirebase("");
+        //getListSongFromFirebase("");
         initListener();
 
         return mFragmentHomeBinding.getRoot();

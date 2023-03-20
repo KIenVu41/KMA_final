@@ -1,6 +1,7 @@
 package com.kma.demo.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Song implements Serializable {
 
@@ -87,5 +88,18 @@ public class Song implements Serializable {
 
     public void setPlaying(boolean playing) {
         isPlaying = playing;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Song song = (Song) o;
+        return latest == song.latest && featured == song.featured && count == song.count && id == song.getId() && Objects.equals(title, song.title) && Objects.equals(image, song.image) && Objects.equals(url, song.url) && Objects.equals(artist, song.artist);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, image, url, artist, latest, featured, count);
     }
 }

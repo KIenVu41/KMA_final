@@ -4,17 +4,9 @@ public class Constant {
 
     public static final String GENERIC_ERROR = "General error, please try again later";
 
-    public static final String PAGE_FACEBOOK = "";
-    public static final String LINK_FACEBOOK = "";
-    public static final String LINK_YOUTUBE = "";
-    public static final String PHONE_NUMBER = "";
-    public static final String GMAIL = "";
-    public static final String SKYPE_ID = "";
-    public static final String ZALO_LINK = "";
-
     // Firebase url
     public static final String FIREBASE_URL = "https://musicbasic-251ca-default-rtdb.firebaseio.com";
-
+    public static final String BASE_URL = "http://10.0.2.2:3000/api/v1/";
     // Max count
     public static final int MAX_COUNT_BANNER = 5;
     public static final int MAX_COUNT_POPULAR = 4;

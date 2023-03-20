@@ -23,8 +23,8 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        FirebaseApp.initializeApp(this);
-        mFirebaseDatabase = FirebaseDatabase.getInstance(Constant.FIREBASE_URL);
+        //FirebaseApp.initializeApp(this);
+        //mFirebaseDatabase = FirebaseDatabase.getInstance(Constant.FIREBASE_URL);
         createChannelNotification();
     }
 
@@ -40,10 +40,6 @@ public class MyApplication extends Application {
 
     public DatabaseReference getSongsDatabaseReference() {
         return mFirebaseDatabase.getReference("/songs");
-    }
-
-    public DatabaseReference getFeedbackDatabaseReference() {
-        return mFirebaseDatabase.getReference("/feedback");
     }
 
     public DatabaseReference getCountViewDatabaseReference(int songId) {

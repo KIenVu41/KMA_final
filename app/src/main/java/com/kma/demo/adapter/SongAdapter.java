@@ -15,7 +15,7 @@ import java.util.List;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
 
-    private final List<Song> mListSongs;
+    private  List<Song> mListSongs;
     public final IOnClickSongItemListener iOnClickSongItemListener;
 
     public SongAdapter(List<Song> mListSongs, IOnClickSongItemListener iOnClickSongItemListener) {
@@ -47,6 +47,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     @Override
     public int getItemCount() {
         return null == mListSongs ? 0 : mListSongs.size();
+    }
+
+    public void setData(List<Song> songs) {
+        this.mListSongs = songs;
     }
 
     public static class SongViewHolder extends RecyclerView.ViewHolder {

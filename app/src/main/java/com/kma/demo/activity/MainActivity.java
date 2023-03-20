@@ -1,6 +1,5 @@
 package com.kma.demo.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -20,9 +19,7 @@ import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.databinding.ActivityMainBinding;
 import com.kma.demo.fragment.AllSongsFragment;
-import com.kma.demo.fragment.ContactFragment;
 import com.kma.demo.fragment.FeaturedSongsFragment;
-import com.kma.demo.fragment.FeedbackFragment;
 import com.kma.demo.fragment.HomeFragment;
 import com.kma.demo.fragment.NewSongsFragment;
 import com.kma.demo.fragment.PopularSongsFragment;
@@ -38,8 +35,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     public static final int TYPE_FEATURED_SONGS = 3;
     public static final int TYPE_POPULAR_SONGS = 4;
     public static final int TYPE_NEW_SONGS = 5;
-    public static final int TYPE_FEEDBACK = 6;
-    public static final int TYPE_CONTACT = 7;
 
     private int mTypeScreen = TYPE_HOME;
     private ActivityMainBinding mActivityMainBinding;
@@ -80,8 +75,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         mActivityMainBinding.menuLeft.tvMenuFeaturedSongs.setOnClickListener(this);
         mActivityMainBinding.menuLeft.tvMenuPopularSongs.setOnClickListener(this);
         mActivityMainBinding.menuLeft.tvMenuNewSongs.setOnClickListener(this);
-        mActivityMainBinding.menuLeft.tvMenuFeedback.setOnClickListener(this);
-        mActivityMainBinding.menuLeft.tvMenuContact.setOnClickListener(this);
 
         mActivityMainBinding.layoutBottom.imgPrevious.setOnClickListener(this);
         mActivityMainBinding.layoutBottom.imgPlay.setOnClickListener(this);
@@ -152,22 +145,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             case R.id.tv_menu_new_songs:
                 mActivityMainBinding.drawerLayout.closeDrawer(GravityCompat.START);
                 openNewSongsScreen();
-                break;
-
-            case R.id.tv_menu_feedback:
-                mActivityMainBinding.drawerLayout.closeDrawer(GravityCompat.START);
-                replaceFragment(new FeedbackFragment());
-                mTypeScreen = TYPE_FEEDBACK;
-                initToolbar(getString(R.string.menu_feedback));
-                displayLayoutPlayAll();
-                break;
-
-            case R.id.tv_menu_contact:
-                mActivityMainBinding.drawerLayout.closeDrawer(GravityCompat.START);
-                replaceFragment(new ContactFragment());
-                mTypeScreen = TYPE_CONTACT;
-                initToolbar(getString(R.string.menu_contact));
-                displayLayoutPlayAll();
                 break;
 
             case R.id.img_previous:
