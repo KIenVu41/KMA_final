@@ -24,9 +24,9 @@ public class SongController {
         apiService = RetrofitInstance.getRetrofitInstance().create(ApiService.class);
     }
 
-    public void fetchAllData() {
+    public void fetchAllData(String name) {
         songCallbackListener.onFetchProgress(0);
-        apiService.getAllSongs().enqueue(new Callback<List<Song>>() {
+        apiService.getAllSongs(name).enqueue(new Callback<List<Song>>() {
            @Override
            public void onResponse(Call<List<Song>> call, Response<List<Song>> response) {
                if(response.isSuccessful()) {

@@ -29,6 +29,7 @@ import com.kma.demo.adapter.SongAdapter;
 import com.kma.demo.adapter.SongGridAdapter;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
+import com.kma.demo.controller.SongController;
 import com.kma.demo.databinding.FragmentHomeBinding;
 import com.kma.demo.model.Song;
 import com.kma.demo.service.MusicService;
@@ -38,12 +39,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements SongController.SongCallbackListener {
 
     private FragmentHomeBinding mFragmentHomeBinding;
 
     private List<Song> mListSong;
     private List<Song> mListSongBanner;
+    private SongController songController;
+    private String strKey = "";
 
     private final Handler mHandlerBanner = new Handler();
     private final Runnable mRunnableBanner = new Runnable() {
@@ -65,7 +68,8 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mFragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false);
 
-        //getListSongFromFirebase("");
+        songController = new SongController(this);
+        getListSongFromServer("");
         initListener();
 
         return mFragmentHomeBinding.getRoot();
@@ -88,7 +92,7 @@ public class HomeFragment extends Fragment {
                 String strKey = s.toString().trim();
                 if (strKey.equals("") || strKey.length() == 0) {
                     if (mListSong != null) mListSong.clear();
-                    getListSongFromFirebase("");
+                    //getListSongFromFirebase("");
                 }
             }
         });
@@ -118,40 +122,41 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void getListSongFromFirebase(String key) {
+    private void getListSongFromServer(String key) {
         if (getActivity() == null) {
             return;
         }
-        MyApplication.get(getActivity()).getSongsDatabaseReference().addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                mFragmentHomeBinding.layoutContent.setVisibility(View.VISIBLE);
-                mListSong = new ArrayList<>();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Song song = dataSnapshot.getValue(Song.class);
-                    if (song == null) {
-                        return;
-                    }
-
-                    if (StringUtil.isEmpty(key)) {
-                        mListSong.add(0, song);
-                    } else {
-                        if (GlobalFuntion.getTextSearch(song.getTitle()).toLowerCase().trim()
-                                .contains(GlobalFuntion.getTextSearch(key).toLowerCase().trim())) {
-                            mListSong.add(0, song);
-                        }
-                    }
-                }
-                displayListBannerSongs();
-                displayListPopularSongs();
-                displayListNewSongs();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                GlobalFuntion.showToastMessage(getActivity(), getString(R.string.msg_get_date_error));
-            }
-        });
+        songController.fetchAllData(key);
+//        MyApplication.get(getActivity()).getSongsDatabaseReference().addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                mFragmentHomeBinding.layoutContent.setVisibility(View.VISIBLE);
+//                mListSong = new ArrayList<>();
+//                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+//                    Song song = dataSnapshot.getValue(Song.class);
+//                    if (song == null) {
+//                        return;
+//                    }
+//
+//                    if (StringUtil.isEmpty(key)) {
+//                        mListSong.add(0, song);
+//                    } else {
+//                        if (GlobalFuntion.getTextSearch(song.getTitle()).toLowerCase().trim()
+//                                .contains(GlobalFuntion.getTextSearch(key).toLowerCase().trim())) {
+//                            mListSong.add(0, song);
+//                        }
+//                    }
+//                }
+//                displayListBannerSongs();
+//                displayListPopularSongs();
+//                displayListNewSongs();
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                GlobalFuntion.showToastMessage(getActivity(), getString(R.string.msg_get_date_error));
+//            }
+//        });
     }
 
     private void displayListBannerSongs() {
@@ -234,9 +239,9 @@ public class HomeFragment extends Fragment {
     }
 
     private void searchSong() {
-        String strKey = mFragmentHomeBinding.edtSearchName.getText().toString().trim();
+        strKey = mFragmentHomeBinding.edtSearchName.getText().toString().trim();
         if (mListSong != null) mListSong.clear();
-        getListSongFromFirebase(strKey);
+        getListSongFromServer(strKey);
         GlobalFuntion.hideSoftKeyboard(getActivity());
     }
 
@@ -246,5 +251,33 @@ public class HomeFragment extends Fragment {
         MusicService.isPlaying = false;
         GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
         GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
+    }
+
+    @Override
+    public void onFetchProgress(int mode) {
+
+    }
+
+    @Override
+    public void onFetchComplete(List<Song> songs) {
+        mFragmentHomeBinding.layoutContent.setVisibility(View.VISIBLE);
+        mListSong = new ArrayList<>();
+        for (Song song : songs) {
+            if (song == null) {
+                return;
+            }
+
+            if (StringUtil.isEmpty(strKey)) {
+                mListSong.add(0, song);
+            } else {
+                if (GlobalFuntion.getTextSearch(song.getTitle()).toLowerCase().trim()
+                        .contains(GlobalFuntion.getTextSearch(strKey).toLowerCase().trim())) {
+                    mListSong.add(0, song);
+                }
+            }
+        }
+        displayListBannerSongs();
+        displayListPopularSongs();
+        displayListNewSongs();
     }
 }

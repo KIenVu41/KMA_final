@@ -42,7 +42,7 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
         mFragmentAllSongsBinding = FragmentAllSongsBinding.inflate(inflater, container, false);
 
         songController = new SongController(this);
-        displayListAllSongs();
+
         getListAllSongs();
         initListener();
 
@@ -53,7 +53,7 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
         if (getActivity() == null) {
             return;
         }
-        songController.fetchAllData();
+        songController.fetchAllData("");
 //        MyApplication.get(getActivity()).getSongsDatabaseReference().addValueEventListener(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -123,8 +123,8 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
             mListSong.add(0, song);
 
         }
-        songAdapter.setData(mListSong);
-        songAdapter.notifyDataSetChanged();
-        //displayListAllSongs();
+//        songAdapter.setData(mListSong);
+//        songAdapter.notifyDataSetChanged();
+        displayListAllSongs();
     }
 }

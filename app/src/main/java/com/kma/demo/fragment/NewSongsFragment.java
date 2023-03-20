@@ -20,6 +20,7 @@ import com.kma.demo.activity.PlayMusicActivity;
 import com.kma.demo.adapter.SongAdapter;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
+import com.kma.demo.controller.SongController;
 import com.kma.demo.databinding.FragmentNewSongsBinding;
 import com.kma.demo.model.Song;
 import com.kma.demo.service.MusicService;
@@ -27,15 +28,18 @@ import com.kma.demo.service.MusicService;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewSongsFragment extends Fragment {
+public class NewSongsFragment extends Fragment implements SongController.SongCallbackListener {
 
     private FragmentNewSongsBinding mFragmentNewSongsBinding;
     private List<Song> mListSong;
+    private SongController songController;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mFragmentNewSongsBinding = FragmentNewSongsBinding.inflate(inflater, container, false);
+
+        songController = new SongController(this);
 
         getListNewSongs();
         initListener();
@@ -47,27 +51,28 @@ public class NewSongsFragment extends Fragment {
         if (getActivity() == null) {
             return;
         }
-        MyApplication.get(getActivity()).getSongsDatabaseReference().addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                mListSong = new ArrayList<>();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Song song = dataSnapshot.getValue(Song.class);
-                    if (song == null) {
-                        return;
-                    }
-                    if (song.isLatest()) {
-                        mListSong.add(0, song);
-                    }
-                }
-                displayListNewSongs();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                GlobalFuntion.showToastMessage(getActivity(), getString(R.string.msg_get_date_error));
-            }
-        });
+        songController.fetchAllData("");
+//        MyApplication.get(getActivity()).getSongsDatabaseReference().addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                mListSong = new ArrayList<>();
+//                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+//                    Song song = dataSnapshot.getValue(Song.class);
+//                    if (song == null) {
+//                        return;
+//                    }
+//                    if (song.isLatest()) {
+//                        mListSong.add(0, song);
+//                    }
+//                }
+//                displayListNewSongs();
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                GlobalFuntion.showToastMessage(getActivity(), getString(R.string.msg_get_date_error));
+//            }
+//        });
     }
 
     private void displayListNewSongs() {
@@ -101,5 +106,24 @@ public class NewSongsFragment extends Fragment {
             GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
             GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
         });
+    }
+
+    @Override
+    public void onFetchProgress(int mode) {
+
+    }
+
+    @Override
+    public void onFetchComplete(List<Song> songs) {
+        mListSong = new ArrayList<>();
+        for (Song song : songs) {
+            if (song == null) {
+                return;
+            }
+            if (song.isLatest()) {
+                mListSong.add(0, song);
+            }
+        }
+        displayListNewSongs();
     }
 }

@@ -85,6 +85,20 @@
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
             android:background="@color/white" />
+
+        <TextView
+            android:id="@+id/tv_menu_library"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/define_dimen_14"
+            android:text="@string/menu_library"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_size_xnormal" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/white" />
     </LinearLayout>
 
     <RelativeLayout

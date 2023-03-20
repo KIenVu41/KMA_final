@@ -7,8 +7,10 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ApiService {
     @GET("songs")
-    Call<List<Song>> getAllSongs();
+    Call<List<Song>> getAllSongs(@Query("name") String name);
 }

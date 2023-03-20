@@ -10,8 +10,8 @@ public class Song implements Serializable {
     private String image;
     private String url;
     private String artist;
-    private boolean latest;
-    private boolean featured;
+    private boolean latest = false;
+    private boolean featured = false;
     private int count;
     private boolean isPlaying;
 
