@@ -7,7 +7,7 @@ public class SongDiffUtilCallBack extends DiffUtil.ItemCallback<Song> {
 
     @Override
     public boolean areItemsTheSame(@NonNull Song oldItem, @NonNull Song newItem) {
-        return oldItem.getId() == newItem.getId();
+        return oldItem.getDocId().equals(newItem.getDocId());
     }
 
     @Override

@@ -1,9 +1,17 @@
 package com.kma.demo.fragment;
 
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +40,9 @@ public class FeaturedSongsFragment extends Fragment implements SongController.So
     private FragmentFeaturedSongsBinding mFragmentFeaturedSongsBinding;
     private List<Song> mListSong;
     private SongController songController;
+    private DownloadManager downloadManager;
+    private long enqueue = 0;
+    private BroadcastReceiver downloadReceiver = null;
 
     @Nullable
     @Override
@@ -39,6 +50,23 @@ public class FeaturedSongsFragment extends Fragment implements SongController.So
         mFragmentFeaturedSongsBinding = FragmentFeaturedSongsBinding.inflate(inflater, container, false);
 
         songController = new SongController(this);
+
+        if(downloadReceiver == null) {
+            downloadReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String action = intent.getAction();
+                    if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
+                        if(isAdded()) {
+                            Toast.makeText(requireActivity(), "Download successfully", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    requireActivity().unregisterReceiver(this);
+                }
+            };
+
+            requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        }
 
         getListFeaturedSongs();
         initListener();
@@ -81,7 +109,7 @@ public class FeaturedSongsFragment extends Fragment implements SongController.So
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mFragmentFeaturedSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
 
-        SongAdapter songAdapter = new SongAdapter(mListSong, this::goToSongDetail);
+        SongAdapter songAdapter = new SongAdapter(mListSong, this::goToSongDetail, this::downloadFile);
         mFragmentFeaturedSongsBinding.rcvData.setAdapter(songAdapter);
     }
 
@@ -91,6 +119,23 @@ public class FeaturedSongsFragment extends Fragment implements SongController.So
         MusicService.isPlaying = false;
         GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
         GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
+    }
+
+    private void downloadFile(@NonNull Song song) {
+        downloadManager = (DownloadManager) requireActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(song.getUrl()));
+
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI)
+                .setTitle(song.getTitle() + ".mp3")
+                .setDescription(song.getTitle() + "-" + song.getArtist())
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, song.getTitle() + ".mp3")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+        enqueue = downloadManager.enqueue(request);
+
+        Intent i = new Intent();
+        i.setAction(DownloadManager.ACTION_VIEW_DOWNLOADS);
+        startActivity(i);
     }
 
     private void initListener() {
@@ -125,5 +170,10 @@ public class FeaturedSongsFragment extends Fragment implements SongController.So
             }
         }
         displayListFeaturedSongs();
+    }
+
+    @Override
+    public void onUpdateComplete(int count) {
+
     }
 }

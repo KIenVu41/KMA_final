@@ -26,13 +26,14 @@ import com.kma.demo.R;
 import com.kma.demo.activity.MainActivity;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
+import com.kma.demo.controller.SongController;
 import com.kma.demo.model.Song;
 import com.kma.demo.utils.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, SongController.SongCallbackListener {
 
     public static boolean isPlaying;
     public static List<Song> mListSongPlaying;
@@ -40,6 +41,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public static MediaPlayer mPlayer;
     public static int mLengthSong;
     public static int mAction = -1;
+    private SongController songController;
+    private boolean isLibrary = false;
 
     @Nullable
     @Override
@@ -53,6 +56,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (mPlayer == null) {
             mPlayer = new MediaPlayer();
         }
+        songController = new SongController(this);
     }
 
     @Override
@@ -64,6 +68,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             }
             if (bundle.containsKey(Constant.SONG_POSITION)) {
                 mSongPosition = bundle.getInt(Constant.SONG_POSITION);
+            }
+            if(bundle.containsKey(Constant.LIBRARY_ACTION)) {
+                isLibrary = bundle.getBoolean(Constant.LIBRARY_ACTION);
             }
 
             handleActionMusic(mAction);
@@ -245,7 +252,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mAction = Constant.PLAY;
         sendMusicNotification();
         sendBroadcastChangeListener();
-        changeCountViewSong();
+        if(!isLibrary) {
+            changeCountViewSong();
+        }
     }
 
     private void sendBroadcastChangeListener() {
@@ -255,22 +264,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     private void changeCountViewSong() {
-        int songId = mListSongPlaying.get(mSongPosition).getId();
-        MyApplication.get(this).getCountViewDatabaseReference(songId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Integer currentCount = snapshot.getValue(Integer.class);
-                        if (currentCount != null) {
-                            int newCount = currentCount + 1;
-                            MyApplication.get(MusicService.this).getCountViewDatabaseReference(songId).removeEventListener(this);
-                            MyApplication.get(MusicService.this).getCountViewDatabaseReference(songId).setValue(newCount);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {}
-                });
+        String songId = mListSongPlaying.get(mSongPosition).getDocId();
+        songController.updateCount(songId);
     }
 
     @Override
@@ -280,5 +275,19 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             mPlayer.release();
             mPlayer = null;
         }
+    }
+
+    @Override
+    public void onFetchProgress(int mode) {
+
+    }
+
+    @Override
+    public void onFetchComplete(List<Song> songs) {
+    }
+
+    @Override
+    public void onUpdateComplete(int count) {
+
     }
 }

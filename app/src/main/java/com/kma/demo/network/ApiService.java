@@ -13,4 +13,7 @@ import retrofit2.http.Query;
 public interface ApiService {
     @GET("songs")
     Call<List<Song>> getAllSongs(@Query("name") String name);
+
+    @GET("update")
+    Call<Integer> updateCount(@Query("id") String id);
 }

@@ -1,6 +1,8 @@
 package com.kma.demo.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -17,10 +19,12 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     private  List<Song> mListSongs;
     public final IOnClickSongItemListener iOnClickSongItemListener;
+    public final IOnClickSongItemListener iOnClickSongItemDownloadListener;
 
-    public SongAdapter(List<Song> mListSongs, IOnClickSongItemListener iOnClickSongItemListener) {
+    public SongAdapter(List<Song> mListSongs, IOnClickSongItemListener iOnClickSongItemListener, IOnClickSongItemListener iOnClickSongItemDownloadListener) {
         this.mListSongs = mListSongs;
         this.iOnClickSongItemListener = iOnClickSongItemListener;
+        this.iOnClickSongItemDownloadListener = iOnClickSongItemDownloadListener;
     }
 
     @NonNull
@@ -36,21 +40,24 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         if (song == null) {
             return;
         }
+        if(iOnClickSongItemDownloadListener == null) {
+            holder.mItemSongBinding.imgDownload.setVisibility(View.GONE);
+        }
+
         GlideUtils.loadUrl(song.getImage(), holder.mItemSongBinding.imgSong);
         holder.mItemSongBinding.tvSongName.setText(song.getTitle());
         holder.mItemSongBinding.tvArtist.setText(song.getArtist());
         holder.mItemSongBinding.tvCountView.setText(String.valueOf(song.getCount()));
 
         holder.mItemSongBinding.layoutItem.setOnClickListener(v -> iOnClickSongItemListener.onClickItemSong(song));
+        holder.mItemSongBinding.imgDownload.setOnClickListener(v -> {
+            iOnClickSongItemDownloadListener.onClickItemSong(song);
+        });
     }
 
     @Override
     public int getItemCount() {
         return null == mListSongs ? 0 : mListSongs.size();
-    }
-
-    public void setData(List<Song> songs) {
-        this.mListSongs = songs;
     }
 
     public static class SongViewHolder extends RecyclerView.ViewHolder {

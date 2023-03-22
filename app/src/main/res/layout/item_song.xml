@@ -34,7 +34,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorPrimaryDark"
-                android:textSize="@dimen/text_size_small" />
+                android:textSize="@dimen/text_size_small"
+                android:ellipsize="end"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -54,7 +55,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/define_dimen_5"
                     android:textSize="@dimen/text_size_xsmall"
-                    android:textStyle="italic" />
+                    android:textStyle="italic"
+                    android:ellipsize="end"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -80,6 +82,14 @@
                 android:layout_width="@dimen/define_dimen_20"
                 android:layout_height="@dimen/define_dimen_20"
                 android:src="@drawable/ic_count_view_black"
+                tools:ignore="ContentDescription" />
+
+            <ImageView
+                android:id="@+id/imgDownload"
+                android:layout_marginHorizontal="@dimen/define_dimen_8"
+                android:layout_width="@dimen/define_dimen_20"
+                android:layout_height="@dimen/define_dimen_20"
+                android:src="@drawable/ic_baseline_cloud_download_24"
                 tools:ignore="ContentDescription" />
         </LinearLayout>
     </RelativeLayout>

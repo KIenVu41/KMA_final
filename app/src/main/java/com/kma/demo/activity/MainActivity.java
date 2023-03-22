@@ -21,6 +21,7 @@ import com.kma.demo.databinding.ActivityMainBinding;
 import com.kma.demo.fragment.AllSongsFragment;
 import com.kma.demo.fragment.FeaturedSongsFragment;
 import com.kma.demo.fragment.HomeFragment;
+import com.kma.demo.fragment.LibraryFragment;
 import com.kma.demo.fragment.NewSongsFragment;
 import com.kma.demo.fragment.PopularSongsFragment;
 import com.kma.demo.model.Song;
@@ -35,6 +36,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     public static final int TYPE_FEATURED_SONGS = 3;
     public static final int TYPE_POPULAR_SONGS = 4;
     public static final int TYPE_NEW_SONGS = 5;
+    public static final int TYPE_LIBRARY = 6;
 
     private int mTypeScreen = TYPE_HOME;
     private ActivityMainBinding mActivityMainBinding;
@@ -75,6 +77,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         mActivityMainBinding.menuLeft.tvMenuFeaturedSongs.setOnClickListener(this);
         mActivityMainBinding.menuLeft.tvMenuPopularSongs.setOnClickListener(this);
         mActivityMainBinding.menuLeft.tvMenuNewSongs.setOnClickListener(this);
+        mActivityMainBinding.menuLeft.tvMenuLibrary.setOnClickListener(this);
 
         mActivityMainBinding.layoutBottom.imgPrevious.setOnClickListener(this);
         mActivityMainBinding.layoutBottom.imgPlay.setOnClickListener(this);
@@ -105,6 +108,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         displayLayoutPlayAll();
     }
 
+    public void openLibrarySongScreen() {
+        replaceFragment(new LibraryFragment());
+        mTypeScreen = TYPE_LIBRARY;
+        initToolbar(getString(R.string.menu_library));
+        displayLayoutPlayAll();
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -118,11 +128,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
             case R.id.tv_menu_home:
                 mActivityMainBinding.drawerLayout.closeDrawer(GravityCompat.START);
+                Constant.IS_LIBRARY = false;
                 openHomeScreen();
                 break;
 
             case R.id.tv_menu_all_songs:
                 mActivityMainBinding.drawerLayout.closeDrawer(GravityCompat.START);
+                Constant.IS_LIBRARY = false;
                 replaceFragment(new AllSongsFragment());
                 mTypeScreen = TYPE_ALL_SONGS;
                 initToolbar(getString(R.string.menu_all_songs));
@@ -131,6 +143,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
             case R.id.tv_menu_featured_songs:
                 mActivityMainBinding.drawerLayout.closeDrawer(GravityCompat.START);
+                Constant.IS_LIBRARY = false;
                 replaceFragment(new FeaturedSongsFragment());
                 mTypeScreen = TYPE_FEATURED_SONGS;
                 initToolbar(getString(R.string.menu_featured_songs));
@@ -139,12 +152,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
             case R.id.tv_menu_popular_songs:
                 mActivityMainBinding.drawerLayout.closeDrawer(GravityCompat.START);
+                Constant.IS_LIBRARY = false;
                 openPopularSongsScreen();
                 break;
 
             case R.id.tv_menu_new_songs:
                 mActivityMainBinding.drawerLayout.closeDrawer(GravityCompat.START);
+                Constant.IS_LIBRARY = false;
                 openNewSongsScreen();
+                break;
+
+            case R.id.tv_menu_library:
+                mActivityMainBinding.drawerLayout.closeDrawer(GravityCompat.START);
+                Constant.IS_LIBRARY = true;
+                openLibrarySongScreen();
                 break;
 
             case R.id.img_previous:
@@ -192,6 +213,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             case TYPE_FEATURED_SONGS:
             case TYPE_POPULAR_SONGS:
             case TYPE_NEW_SONGS:
+            case TYPE_LIBRARY:
                 mActivityMainBinding.header.layoutPlayAll.setVisibility(View.VISIBLE);
                 break;
 

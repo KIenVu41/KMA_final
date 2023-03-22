@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public class Song implements Serializable {
 
-    private int id;
+    private String docId;
     private String title;
     private String image;
     private String url;
@@ -18,12 +18,12 @@ public class Song implements Serializable {
     public Song() {
     }
 
-    public int getId() {
-        return id;
+    public String getDocId() {
+        return docId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setDocId(String docId) {
+        this.docId = docId;
     }
 
     public String getTitle() {
@@ -95,11 +95,11 @@ public class Song implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Song song = (Song) o;
-        return latest == song.latest && featured == song.featured && count == song.count && id == song.getId() && Objects.equals(title, song.title) && Objects.equals(image, song.image) && Objects.equals(url, song.url) && Objects.equals(artist, song.artist);
+        return latest == song.latest && featured == song.featured && count == song.count && Objects.equals(docId, song.docId) && Objects.equals(title, song.title) && Objects.equals(image, song.image) && Objects.equals(url, song.url) && Objects.equals(artist, song.artist);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, image, url, artist, latest, featured, count);
+        return Objects.hash(docId, title, image, url, artist, latest, featured, count);
     }
 }

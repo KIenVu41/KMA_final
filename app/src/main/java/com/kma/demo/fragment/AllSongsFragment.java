@@ -1,10 +1,18 @@
 package com.kma.demo.fragment;
 
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +43,9 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
     private List<Song> mListSong;
     private SongController songController;
     private SongAdapter songAdapter;
+    private DownloadManager downloadManager;
+    private long enqueue = 0;
+    private BroadcastReceiver downloadReceiver = null;
 
     @Nullable
     @Override
@@ -42,6 +53,23 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
         mFragmentAllSongsBinding = FragmentAllSongsBinding.inflate(inflater, container, false);
 
         songController = new SongController(this);
+
+        if(downloadReceiver == null) {
+            downloadReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String action = intent.getAction();
+                    if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
+                        if(isAdded()) {
+                            Toast.makeText(requireActivity(), "Download successfully", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    requireActivity().unregisterReceiver(this);
+                }
+            };
+
+            requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        }
 
         getListAllSongs();
         initListener();
@@ -82,7 +110,7 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mFragmentAllSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
 
-        songAdapter = new SongAdapter(mListSong, this::goToSongDetail);
+        songAdapter = new SongAdapter(mListSong, this::goToSongDetail, this::downloadFile);
         mFragmentAllSongsBinding.rcvData.setAdapter(songAdapter);
     }
 
@@ -92,6 +120,23 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
         MusicService.isPlaying = false;
         GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
         GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
+    }
+
+    private void downloadFile(@NonNull Song song) {
+        downloadManager = (DownloadManager) requireActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(song.getUrl()));
+
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI)
+                .setTitle(song.getTitle() + ".mp3")
+                .setDescription(song.getTitle() + "-" + song.getArtist())
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, song.getTitle() + ".mp3")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+        enqueue = downloadManager.enqueue(request);
+
+        Intent i = new Intent();
+        i.setAction(DownloadManager.ACTION_VIEW_DOWNLOADS);
+        startActivity(i);
     }
 
     private void initListener() {
@@ -123,8 +168,11 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
             mListSong.add(0, song);
 
         }
-//        songAdapter.setData(mListSong);
-//        songAdapter.notifyDataSetChanged();
         displayListAllSongs();
+    }
+
+    @Override
+    public void onUpdateComplete(int count) {
+
     }
 }

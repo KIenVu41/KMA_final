@@ -54,6 +54,7 @@ public class GlobalFuntion {
         Intent musicService = new Intent(ctx, MusicService.class);
         musicService.putExtra(Constant.MUSIC_ACTION, action);
         musicService.putExtra(Constant.SONG_POSITION, songPosition);
+        musicService.putExtra(Constant.LIBRARY_ACTION, Constant.IS_LIBRARY);
         ctx.startService(musicService);
     }
 

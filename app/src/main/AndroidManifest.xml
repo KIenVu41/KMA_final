@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
 
     <application
         android:name=".MyApplication"
@@ -22,6 +25,15 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="UnusedAttribute">
+
+        <service
+            android:name=".service.MusicService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".service.MusicReceiver"
+            android:exported="false" />
+
         <activity
             android:exported="true"
             android:name="com.kma.demo.activity.SplashActivity">

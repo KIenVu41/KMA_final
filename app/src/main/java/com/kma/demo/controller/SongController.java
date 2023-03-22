@@ -1,14 +1,22 @@
 package com.kma.demo.controller;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.database.Cursor;
+import android.provider.MediaStore;
 import android.util.Log;
 
+import com.kma.demo.constant.Constant;
 import com.kma.demo.model.Song;
 import com.kma.demo.network.RetrofitInstance;
 import com.kma.demo.network.ApiService;
+import com.kma.demo.utils.StorageUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -41,9 +49,48 @@ public class SongController {
        });
     }
 
+    public void updateCount(String id) {
+        songCallbackListener.onFetchProgress(0);
+        apiService.updateCount(id).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if(response.isSuccessful() && response.body() != null) {
+                    songCallbackListener.onUpdateComplete(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public List<Song> fetchSongFromLocal(Context context) {
+        List<Song> mListSong = new ArrayList<>();
+        File[] files = StorageUtil.getListFiles(Constant.DOWNLOAD_DIR);
+        if(files != null) {
+            for(int i = 0; i < files.length; i++) {
+                if(files[i].exists() && files[i].length() > 0 && StorageUtil.getFileExtension(files[i].getName()).equals("mp3")) {
+                    Song song = new Song();
+                    song.setDocId("");
+                    song.setUrl(files[i].getAbsolutePath());
+                    song.setTitle(files[i].getName());
+                    song.setLatest(false);
+                    song.setFeatured(false);
+                    song.setCount(0);
+                    song.setArtist("");
+                    mListSong.add(song);
+                }
+            }
+        }
+        return mListSong;
+    }
+
     public interface SongCallbackListener
     {
         void onFetchProgress(int mode);
         void onFetchComplete(List<Song> songs);
+        void onUpdateComplete(int count);
     }
 }

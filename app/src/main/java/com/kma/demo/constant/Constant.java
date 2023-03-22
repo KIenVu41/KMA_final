@@ -3,6 +3,7 @@ package com.kma.demo.constant;
 public class Constant {
 
     public static final String GENERIC_ERROR = "General error, please try again later";
+    public static final String DOWNLOAD_DIR = "/storage/emulated/0/Download/";
 
     // Firebase url
     public static final String FIREBASE_URL = "https://musicbasic-251ca-default-rtdb.firebaseio.com";
@@ -22,4 +23,6 @@ public class Constant {
     public static final String MUSIC_ACTION = "musicAction";
     public static final String SONG_POSITION = "songPosition";
     public static final String CHANGE_LISTENER = "change_listener";
+    public static final String LIBRARY_ACTION = "libraryAction";
+    public static Boolean IS_LIBRARY = false;
 }
