@@ -4,6 +4,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kma.demo.databinding.ItemBannerSongBinding;
@@ -13,13 +15,12 @@ import com.kma.demo.utils.GlideUtils;
 
 import java.util.List;
 
-public class BannerSongAdapter extends RecyclerView.Adapter<BannerSongAdapter.BannerSongViewHolder> {
+public class BannerSongAdapter extends ListAdapter<Song, BannerSongAdapter.BannerSongViewHolder> {
 
-    private final List<Song> mListSongs;
     public final IOnClickSongItemListener iOnClickSongItemListener;
 
-    public BannerSongAdapter(List<Song> mListSongs, IOnClickSongItemListener iOnClickSongItemListener) {
-        this.mListSongs = mListSongs;
+    public BannerSongAdapter(@NonNull DiffUtil.ItemCallback<Song> diffCallback, IOnClickSongItemListener iOnClickSongItemListener) {
+        super(diffCallback);
         this.iOnClickSongItemListener = iOnClickSongItemListener;
     }
 
@@ -32,20 +33,12 @@ public class BannerSongAdapter extends RecyclerView.Adapter<BannerSongAdapter.Ba
 
     @Override
     public void onBindViewHolder(@NonNull BannerSongViewHolder holder, int position) {
-        Song song = mListSongs.get(position);
+        Song song = getItem(position);
         if (song == null) {
             return;
         }
         GlideUtils.loadUrlBanner(song.getImage(), holder.mItemBannerSongBinding.imageBanner);
         holder.mItemBannerSongBinding.layoutItem.setOnClickListener(v -> iOnClickSongItemListener.onClickItemSong(song));
-    }
-
-    @Override
-    public int getItemCount() {
-        if (mListSongs != null) {
-            return mListSongs.size();
-        }
-        return 0;
     }
 
     public static class BannerSongViewHolder extends RecyclerView.ViewHolder {

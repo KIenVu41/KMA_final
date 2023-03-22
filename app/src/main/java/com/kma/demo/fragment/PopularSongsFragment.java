@@ -31,6 +31,7 @@ import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
 import com.kma.demo.databinding.FragmentPopularSongsBinding;
 import com.kma.demo.model.Song;
+import com.kma.demo.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
 
 import java.util.ArrayList;
@@ -41,7 +42,9 @@ public class PopularSongsFragment extends Fragment implements SongController.Son
 
     private FragmentPopularSongsBinding mFragmentPopularSongsBinding;
     private List<Song> mListSong;
+    private SongAdapter songAdapter;
     private SongController songController;
+    private SongDiffUtilCallBack songDiffUtilCallBack;
     private DownloadManager downloadManager;
     private long enqueue = 0;
     private BroadcastReceiver downloadReceiver = null;
@@ -52,6 +55,7 @@ public class PopularSongsFragment extends Fragment implements SongController.Son
         mFragmentPopularSongsBinding = FragmentPopularSongsBinding.inflate(inflater, container, false);
 
         songController = new SongController(this);
+        songDiffUtilCallBack = new SongDiffUtilCallBack();
 
         if(downloadReceiver == null) {
             downloadReceiver = new BroadcastReceiver() {
@@ -70,6 +74,7 @@ public class PopularSongsFragment extends Fragment implements SongController.Son
             requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         }
 
+        displayListPopularSongs();
         getListPopularSongs();
         initListener();
 
@@ -112,7 +117,7 @@ public class PopularSongsFragment extends Fragment implements SongController.Son
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mFragmentPopularSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
 
-        SongAdapter songAdapter = new SongAdapter(mListSong, this::goToSongDetail, this::downloadFile);
+        songAdapter = new SongAdapter(songDiffUtilCallBack, this::goToSongDetail, this::downloadFile);
         mFragmentPopularSongsBinding.rcvData.setAdapter(songAdapter);
     }
 
@@ -172,7 +177,7 @@ public class PopularSongsFragment extends Fragment implements SongController.Son
             }
         }
         Collections.sort(mListSong, (song1, song2) -> song2.getCount() - song1.getCount());
-        displayListPopularSongs();
+        songAdapter.submitList(mListSong);
     }
 
     @Override

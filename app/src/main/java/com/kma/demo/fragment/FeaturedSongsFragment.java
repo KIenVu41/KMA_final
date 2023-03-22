@@ -30,6 +30,7 @@ import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
 import com.kma.demo.databinding.FragmentFeaturedSongsBinding;
 import com.kma.demo.model.Song;
+import com.kma.demo.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
 
 import java.util.ArrayList;
@@ -39,6 +40,8 @@ public class FeaturedSongsFragment extends Fragment implements SongController.So
 
     private FragmentFeaturedSongsBinding mFragmentFeaturedSongsBinding;
     private List<Song> mListSong;
+    private SongAdapter songAdapter;
+    private SongDiffUtilCallBack songDiffUtilCallBack;
     private SongController songController;
     private DownloadManager downloadManager;
     private long enqueue = 0;
@@ -50,6 +53,7 @@ public class FeaturedSongsFragment extends Fragment implements SongController.So
         mFragmentFeaturedSongsBinding = FragmentFeaturedSongsBinding.inflate(inflater, container, false);
 
         songController = new SongController(this);
+        songDiffUtilCallBack = new SongDiffUtilCallBack();
 
         if(downloadReceiver == null) {
             downloadReceiver = new BroadcastReceiver() {
@@ -68,6 +72,7 @@ public class FeaturedSongsFragment extends Fragment implements SongController.So
             requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         }
 
+        displayListFeaturedSongs();
         getListFeaturedSongs();
         initListener();
 
@@ -109,7 +114,7 @@ public class FeaturedSongsFragment extends Fragment implements SongController.So
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mFragmentFeaturedSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
 
-        SongAdapter songAdapter = new SongAdapter(mListSong, this::goToSongDetail, this::downloadFile);
+        songAdapter = new SongAdapter(songDiffUtilCallBack, this::goToSongDetail, this::downloadFile);
         mFragmentFeaturedSongsBinding.rcvData.setAdapter(songAdapter);
     }
 
@@ -169,7 +174,7 @@ public class FeaturedSongsFragment extends Fragment implements SongController.So
                 mListSong.add(0, song);
             }
         }
-        displayListFeaturedSongs();
+        songAdapter.submitList(mListSong);
     }
 
     @Override

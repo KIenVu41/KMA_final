@@ -4,6 +4,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kma.demo.databinding.ItemSongGridBinding;
@@ -13,13 +15,12 @@ import com.kma.demo.utils.GlideUtils;
 
 import java.util.List;
 
-public class SongGridAdapter extends RecyclerView.Adapter<SongGridAdapter.SongGridViewHolder> {
+public class SongGridAdapter extends ListAdapter<Song, SongGridAdapter.SongGridViewHolder> {
 
-    private final List<Song> mListSongs;
     public final IOnClickSongItemListener iOnClickSongItemListener;
 
-    public SongGridAdapter(List<Song> mListSongs, IOnClickSongItemListener iOnClickSongItemListener) {
-        this.mListSongs = mListSongs;
+    public SongGridAdapter(@NonNull DiffUtil.ItemCallback<Song> diffCallback, IOnClickSongItemListener iOnClickSongItemListener) {
+        super(diffCallback);
         this.iOnClickSongItemListener = iOnClickSongItemListener;
     }
 
@@ -32,7 +33,7 @@ public class SongGridAdapter extends RecyclerView.Adapter<SongGridAdapter.SongGr
 
     @Override
     public void onBindViewHolder(@NonNull SongGridViewHolder holder, int position) {
-        Song song = mListSongs.get(position);
+        Song song = getItem(position);
         if (song == null) {
             return;
         }
@@ -41,11 +42,6 @@ public class SongGridAdapter extends RecyclerView.Adapter<SongGridAdapter.SongGr
         holder.mItemSongGridBinding.tvArtist.setText(song.getArtist());
 
         holder.mItemSongGridBinding.layoutItem.setOnClickListener(v -> iOnClickSongItemListener.onClickItemSong(song));
-    }
-
-    @Override
-    public int getItemCount() {
-        return null == mListSongs ? 0 : mListSongs.size();
     }
 
     public static class SongGridViewHolder extends RecyclerView.ViewHolder {

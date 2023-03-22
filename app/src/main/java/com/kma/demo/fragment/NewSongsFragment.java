@@ -31,6 +31,7 @@ import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
 import com.kma.demo.databinding.FragmentNewSongsBinding;
 import com.kma.demo.model.Song;
+import com.kma.demo.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
 
 import java.util.ArrayList;
@@ -40,7 +41,9 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
 
     private FragmentNewSongsBinding mFragmentNewSongsBinding;
     private List<Song> mListSong;
+    private SongAdapter songAdapter;
     private SongController songController;
+    private SongDiffUtilCallBack songDiffUtilCallBack;
     private DownloadManager downloadManager;
     private long enqueue = 0;
     private BroadcastReceiver downloadReceiver = null;
@@ -51,6 +54,7 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
         mFragmentNewSongsBinding = FragmentNewSongsBinding.inflate(inflater, container, false);
 
         songController = new SongController(this);
+        songDiffUtilCallBack = new SongDiffUtilCallBack();
 
         if(downloadReceiver == null) {
             downloadReceiver = new BroadcastReceiver() {
@@ -69,6 +73,7 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
             requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         }
 
+        displayListNewSongs();
         getListNewSongs();
         initListener();
 
@@ -110,7 +115,7 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mFragmentNewSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
 
-        SongAdapter songAdapter = new SongAdapter(mListSong, this::goToSongDetail, this::downloadFile);
+        songAdapter = new SongAdapter(songDiffUtilCallBack, this::goToSongDetail, this::downloadFile);
         mFragmentNewSongsBinding.rcvData.setAdapter(songAdapter);
     }
 
@@ -169,7 +174,7 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
                 mListSong.add(0, song);
             }
         }
-        displayListNewSongs();
+        songAdapter.submitList(mListSong);
     }
 
     @Override

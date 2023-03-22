@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kma.demo.databinding.ItemSongBinding;
@@ -15,17 +17,23 @@ import com.kma.demo.utils.GlideUtils;
 
 import java.util.List;
 
-public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
+public class SongAdapter extends ListAdapter<Song, SongAdapter.SongViewHolder> {
 
     private  List<Song> mListSongs;
     public final IOnClickSongItemListener iOnClickSongItemListener;
     public final IOnClickSongItemListener iOnClickSongItemDownloadListener;
 
-    public SongAdapter(List<Song> mListSongs, IOnClickSongItemListener iOnClickSongItemListener, IOnClickSongItemListener iOnClickSongItemDownloadListener) {
-        this.mListSongs = mListSongs;
+    public SongAdapter(@NonNull DiffUtil.ItemCallback<Song> diffCallback, IOnClickSongItemListener iOnClickSongItemListener, IOnClickSongItemListener iOnClickSongItemDownloadListener) {
+        super(diffCallback);
         this.iOnClickSongItemListener = iOnClickSongItemListener;
         this.iOnClickSongItemDownloadListener = iOnClickSongItemDownloadListener;
     }
+
+//    public SongAdapter(List<Song> mListSongs, IOnClickSongItemListener iOnClickSongItemListener, IOnClickSongItemListener iOnClickSongItemDownloadListener) {
+//        this.mListSongs = mListSongs;
+//        this.iOnClickSongItemListener = iOnClickSongItemListener;
+//        this.iOnClickSongItemDownloadListener = iOnClickSongItemDownloadListener;
+//    }
 
     @NonNull
     @Override
@@ -36,7 +44,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
-        Song song = mListSongs.get(position);
+        Song song = getItem(position);
         if (song == null) {
             return;
         }
@@ -55,10 +63,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         });
     }
 
-    @Override
-    public int getItemCount() {
-        return null == mListSongs ? 0 : mListSongs.size();
-    }
+//    @Override
+//    public int getItemCount() {
+//        return null == mListSongs ? 0 : mListSongs.size();
+//    }
 
     public static class SongViewHolder extends RecyclerView.ViewHolder {
 

@@ -40,6 +40,7 @@ import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
 import com.kma.demo.databinding.FragmentHomeBinding;
 import com.kma.demo.model.Song;
+import com.kma.demo.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
 import com.kma.demo.utils.StringUtil;
 
@@ -52,12 +53,18 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
     private FragmentHomeBinding mFragmentHomeBinding;
 
     private List<Song> mListSong;
+    private List<Song> mListNewSong;
+    private List<Song> mListPopularSong;
     private List<Song> mListSongBanner;
+    private SongAdapter songAdapter;
+    private BannerSongAdapter bannerSongAdapter;
+    private SongGridAdapter songGridAdapter;
     private SongController songController;
     private String strKey = "";
     private DownloadManager downloadManager;
     private long enqueue = 0;
     private BroadcastReceiver downloadReceiver = null;
+    private SongDiffUtilCallBack songDiffUtilCallBack;
 
     private final Handler mHandlerBanner = new Handler();
     private final Runnable mRunnableBanner = new Runnable() {
@@ -79,6 +86,7 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mFragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false);
 
+        songDiffUtilCallBack = new SongDiffUtilCallBack();
         songController = new SongController(this);
 
         if(downloadReceiver == null) {
@@ -98,6 +106,10 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
             requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         }
 
+
+        displayListBannerSongs();
+        displayListPopularSongs();
+        displayListNewSongs();
         getListSongFromServer("");
         initListener();
 
@@ -189,9 +201,8 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
     }
 
     private void displayListBannerSongs() {
-        BannerSongAdapter bannerSongAdapter = new BannerSongAdapter(getListBannerSongs(), this::goToSongDetail);
+        bannerSongAdapter = new BannerSongAdapter(songDiffUtilCallBack, this::goToSongDetail);
         mFragmentHomeBinding.viewpager2.setAdapter(bannerSongAdapter);
-        mFragmentHomeBinding.indicator3.setViewPager(mFragmentHomeBinding.viewpager2);
 
         mFragmentHomeBinding.viewpager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -203,44 +214,45 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
         });
     }
 
-    private List<Song> getListBannerSongs() {
+    private void getListBannerSongs() {
         if (mListSongBanner != null) {
             mListSongBanner.clear();
         } else {
             mListSongBanner = new ArrayList<>();
         }
         if (mListSong == null || mListSong.isEmpty()) {
-            return mListSongBanner;
+            return;
         }
         for (Song song : mListSong) {
             if (song.isFeatured() && mListSongBanner.size() < Constant.MAX_COUNT_BANNER) {
                 mListSongBanner.add(song);
             }
         }
-        return mListSongBanner;
+        bannerSongAdapter.submitList(mListSongBanner);
+        mFragmentHomeBinding.indicator3.setViewPager(mFragmentHomeBinding.viewpager2);
     }
 
     private void displayListPopularSongs() {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         mFragmentHomeBinding.rcvPopularSongs.setLayoutManager(gridLayoutManager);
 
-        SongGridAdapter songGridAdapter = new SongGridAdapter(getListPopularSongs(), this::goToSongDetail);
+        songGridAdapter = new SongGridAdapter(songDiffUtilCallBack, this::goToSongDetail);
         mFragmentHomeBinding.rcvPopularSongs.setAdapter(songGridAdapter);
     }
 
-    private List<Song> getListPopularSongs() {
-        List<Song> list = new ArrayList<>();
+    private void getListPopularSongs() {
+        mListPopularSong = new ArrayList<>();
         if (mListSong == null || mListSong.isEmpty()) {
-            return list;
+            return;
         }
         List<Song> allSongs = new ArrayList<>(mListSong);
         Collections.sort(allSongs, (song1, song2) -> song2.getCount() - song1.getCount());
         for (Song song : allSongs) {
-            if (list.size() < Constant.MAX_COUNT_POPULAR) {
-                list.add(song);
+            if (mListPopularSong.size() < Constant.MAX_COUNT_POPULAR) {
+                mListPopularSong.add(song);
             }
         }
-        return list;
+        songGridAdapter.submitList(mListPopularSong);
     }
 
     private void displayListNewSongs() {
@@ -250,7 +262,7 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mFragmentHomeBinding.rcvNewSongs.setLayoutManager(linearLayoutManager);
 
-        SongAdapter songAdapter = new SongAdapter(getListNewSongs(), this::goToSongDetail, this::downloadFile);
+        songAdapter = new SongAdapter(songDiffUtilCallBack, this::goToSongDetail, this::downloadFile);
         mFragmentHomeBinding.rcvNewSongs.setAdapter(songAdapter);
     }
 
@@ -271,17 +283,17 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
         startActivity(i);
     }
 
-    private List<Song> getListNewSongs() {
-        List<Song> list = new ArrayList<>();
+    private void getListNewSongs() {
+        mListNewSong = new ArrayList<>();
         if (mListSong == null || mListSong.isEmpty()) {
-            return list;
+            return;
         }
         for (Song song : mListSong) {
-            if (song.isLatest() && list.size() < Constant.MAX_COUNT_LATEST) {
-                list.add(song);
+            if (song.isLatest() && mListNewSong.size() < Constant.MAX_COUNT_LATEST) {
+                mListNewSong.add(song);
             }
         }
-        return list;
+        songAdapter.submitList(mListNewSong);
     }
 
     private void searchSong() {
@@ -322,9 +334,9 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
                 }
             }
         }
-        displayListBannerSongs();
-        displayListPopularSongs();
-        displayListNewSongs();
+        getListBannerSongs();
+        getListPopularSongs();
+        getListNewSongs();
     }
 
     @Override

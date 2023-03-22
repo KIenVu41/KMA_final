@@ -5,6 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kma.demo.R;
@@ -15,13 +17,12 @@ import com.kma.demo.utils.GlideUtils;
 
 import java.util.List;
 
-public class SongPlayingAdapter extends RecyclerView.Adapter<SongPlayingAdapter.SongPlayingViewHolder> {
+public class SongPlayingAdapter extends ListAdapter<Song, SongPlayingAdapter.SongPlayingViewHolder> {
 
-    private final List<Song> mListSongs;
     public final IOnClickSongPlayingItemListener iOnClickSongPlayingItemListener;
 
-    public SongPlayingAdapter(List<Song> mListSongs, IOnClickSongPlayingItemListener iOnClickSongPlayingItemListener) {
-        this.mListSongs = mListSongs;
+    public SongPlayingAdapter(@NonNull DiffUtil.ItemCallback<Song> diffCallback, IOnClickSongPlayingItemListener iOnClickSongPlayingItemListener) {
+        super(diffCallback);
         this.iOnClickSongPlayingItemListener = iOnClickSongPlayingItemListener;
     }
 
@@ -34,7 +35,7 @@ public class SongPlayingAdapter extends RecyclerView.Adapter<SongPlayingAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull SongPlayingViewHolder holder, int position) {
-        Song song = mListSongs.get(position);
+        Song song = getItem(position);
         if (song == null) {
             return;
         }
@@ -51,11 +52,6 @@ public class SongPlayingAdapter extends RecyclerView.Adapter<SongPlayingAdapter.
 
         holder.mItemSongPlayingBinding.layoutItem.setOnClickListener(v
                 -> iOnClickSongPlayingItemListener.onClickItemSongPlaying(holder.getAdapterPosition()));
-    }
-
-    @Override
-    public int getItemCount() {
-        return null == mListSongs ? 0 : mListSongs.size();
     }
 
     public static class SongPlayingViewHolder extends RecyclerView.ViewHolder {

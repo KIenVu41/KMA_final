@@ -61,4 +61,19 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.4.1'
+
+    def room_version = "2.3.0"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-rxjava2:$room_version"
+    // Lifecycle components
+    def lifecycle_version = "2.5.1"
+    // ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
+    // LiveData
+    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
+
+    def rx_version = "2.1.0"
+    implementation "io.reactivex.rxjava2:rxandroid:$rx_version"
+    implementation "io.reactivex.rxjava2:rxjava:$rx_version"
 }

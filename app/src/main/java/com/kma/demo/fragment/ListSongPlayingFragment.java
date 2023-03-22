@@ -20,12 +20,18 @@ import com.kma.demo.adapter.SongPlayingAdapter;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.databinding.FragmentListSongPlayingBinding;
+import com.kma.demo.model.Song;
+import com.kma.demo.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
+
+import java.util.List;
 
 public class ListSongPlayingFragment extends Fragment {
 
     private FragmentListSongPlayingBinding mFragmentListSongPlayingBinding;
     private SongPlayingAdapter mSongPlayingAdapter;
+    private SongDiffUtilCallBack songDiffUtilCallBack;
+
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -42,6 +48,7 @@ public class ListSongPlayingFragment extends Fragment {
             LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mBroadcastReceiver,
                     new IntentFilter(Constant.CHANGE_LISTENER));
         }
+        songDiffUtilCallBack = new SongDiffUtilCallBack();
         displayListSongPlaying();
 
         return mFragmentListSongPlayingBinding.getRoot();
@@ -54,7 +61,7 @@ public class ListSongPlayingFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mFragmentListSongPlayingBinding.rcvData.setLayoutManager(linearLayoutManager);
 
-        mSongPlayingAdapter = new SongPlayingAdapter(MusicService.mListSongPlaying, this::clickItemSongPlaying);
+        mSongPlayingAdapter = new SongPlayingAdapter(songDiffUtilCallBack, this::clickItemSongPlaying);
         mFragmentListSongPlayingBinding.rcvData.setAdapter(mSongPlayingAdapter);
 
         updateStatusListSongPlaying();
@@ -68,7 +75,8 @@ public class ListSongPlayingFragment extends Fragment {
         for (int i = 0; i < MusicService.mListSongPlaying.size(); i++) {
             MusicService.mListSongPlaying.get(i).setPlaying(i == MusicService.mSongPosition);
         }
-        mSongPlayingAdapter.notifyDataSetChanged();
+        mSongPlayingAdapter.submitList(MusicService.mListSongPlaying);
+        //mSongPlayingAdapter.notifyDataSetChanged();
     }
 
     private void clickItemSongPlaying(int position) {

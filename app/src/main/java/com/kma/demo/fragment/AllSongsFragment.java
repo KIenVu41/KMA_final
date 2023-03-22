@@ -32,6 +32,7 @@ import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
 import com.kma.demo.databinding.FragmentAllSongsBinding;
 import com.kma.demo.model.Song;
+import com.kma.demo.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
     private FragmentAllSongsBinding mFragmentAllSongsBinding;
     private List<Song> mListSong;
     private SongController songController;
+    private SongDiffUtilCallBack songDiffUtilCallBack;
     private SongAdapter songAdapter;
     private DownloadManager downloadManager;
     private long enqueue = 0;
@@ -53,6 +55,7 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
         mFragmentAllSongsBinding = FragmentAllSongsBinding.inflate(inflater, container, false);
 
         songController = new SongController(this);
+        songDiffUtilCallBack = new SongDiffUtilCallBack();
 
         if(downloadReceiver == null) {
             downloadReceiver = new BroadcastReceiver() {
@@ -71,6 +74,7 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
             requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         }
 
+        displayListAllSongs();
         getListAllSongs();
         initListener();
 
@@ -110,7 +114,7 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mFragmentAllSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
 
-        songAdapter = new SongAdapter(mListSong, this::goToSongDetail, this::downloadFile);
+        songAdapter = new SongAdapter(songDiffUtilCallBack, this::goToSongDetail, this::downloadFile);
         mFragmentAllSongsBinding.rcvData.setAdapter(songAdapter);
     }
 
@@ -168,7 +172,7 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
             mListSong.add(0, song);
 
         }
-        displayListAllSongs();
+        songAdapter.submitList(mListSong);
     }
 
     @Override

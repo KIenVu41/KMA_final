@@ -33,6 +33,7 @@ import com.kma.demo.controller.SongController;
 import com.kma.demo.databinding.FragmentAllSongsBinding;
 import com.kma.demo.databinding.FragmentLibraryBinding;
 import com.kma.demo.model.Song;
+import com.kma.demo.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
 
 import java.io.File;
@@ -44,6 +45,7 @@ public class LibraryFragment extends Fragment {
     private FragmentLibraryBinding mFragmentLibraryBinding;
     private List<Song> mListSong;
     private SongController songController;
+    private SongDiffUtilCallBack songDiffUtilCallBack;
     private SongAdapter songAdapter;
 
     @Nullable
@@ -52,7 +54,9 @@ public class LibraryFragment extends Fragment {
         mFragmentLibraryBinding = FragmentLibraryBinding.inflate(inflater, container, false);
 
         songController = new SongController(null);
+        songDiffUtilCallBack = new SongDiffUtilCallBack();
 
+        displayListLibrarySongs();
         getListLibrarySongs();
         initListener();
 
@@ -65,7 +69,7 @@ public class LibraryFragment extends Fragment {
         }
 
         mListSong = songController.fetchSongFromLocal(MyApplication.get(requireActivity()));
-        displayListLibrarySongs();
+        songAdapter.submitList(mListSong);
     }
 
     private void displayListLibrarySongs() {
@@ -75,7 +79,7 @@ public class LibraryFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         mFragmentLibraryBinding.rcvData.setLayoutManager(linearLayoutManager);
 
-        songAdapter = new SongAdapter(mListSong, this::goToSongDetail, null);
+        songAdapter = new SongAdapter(songDiffUtilCallBack, this::goToSongDetail, null);
         mFragmentLibraryBinding.rcvData.setAdapter(songAdapter);
     }
 

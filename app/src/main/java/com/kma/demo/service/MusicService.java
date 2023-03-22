@@ -56,7 +56,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (mPlayer == null) {
             mPlayer = new MediaPlayer();
         }
-        songController = new SongController(this);
+//        songController = new SongController(this);
     }
 
     @Override
@@ -252,9 +252,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mAction = Constant.PLAY;
         sendMusicNotification();
         sendBroadcastChangeListener();
-        if(!isLibrary) {
-            changeCountViewSong();
-        }
+//        if(!isLibrary) {
+//            changeCountViewSong();
+//        }
     }
 
     private void sendBroadcastChangeListener() {
