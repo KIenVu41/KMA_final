@@ -20,11 +20,8 @@ import com.kma.demo.adapter.SongPlayingAdapter;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.databinding.FragmentListSongPlayingBinding;
-import com.kma.demo.model.Song;
-import com.kma.demo.model.SongDiffUtilCallBack;
+import com.kma.demo.data.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
-
-import java.util.List;
 
 public class ListSongPlayingFragment extends Fragment {
 

@@ -18,11 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
-import com.kma.demo.MyApplication;
-import com.kma.demo.R;
 import com.kma.demo.activity.MainActivity;
 import com.kma.demo.activity.PlayMusicActivity;
 import com.kma.demo.adapter.SongAdapter;
@@ -30,8 +25,8 @@ import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
 import com.kma.demo.databinding.FragmentNewSongsBinding;
-import com.kma.demo.model.Song;
-import com.kma.demo.model.SongDiffUtilCallBack;
+import com.kma.demo.data.model.Song;
+import com.kma.demo.data.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
 
 import java.util.ArrayList;

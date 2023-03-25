@@ -24,7 +24,7 @@ import com.kma.demo.fragment.HomeFragment;
 import com.kma.demo.fragment.LibraryFragment;
 import com.kma.demo.fragment.NewSongsFragment;
 import com.kma.demo.fragment.PopularSongsFragment;
-import com.kma.demo.model.Song;
+import com.kma.demo.data.model.Song;
 import com.kma.demo.service.MusicService;
 import com.kma.demo.utils.GlideUtils;
 

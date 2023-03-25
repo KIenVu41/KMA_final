@@ -1,12 +1,5 @@
 package com.kma.demo.fragment;
 
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,30 +7,22 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.kma.demo.MyApplication;
-import com.kma.demo.R;
 import com.kma.demo.activity.MainActivity;
 import com.kma.demo.activity.PlayMusicActivity;
 import com.kma.demo.adapter.SongAdapter;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
-import com.kma.demo.databinding.FragmentAllSongsBinding;
 import com.kma.demo.databinding.FragmentLibraryBinding;
-import com.kma.demo.model.Song;
-import com.kma.demo.model.SongDiffUtilCallBack;
+import com.kma.demo.data.model.Song;
+import com.kma.demo.data.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 public class LibraryFragment extends Fragment {

@@ -21,7 +21,7 @@ import com.kma.demo.R;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.databinding.FragmentPlaySongBinding;
-import com.kma.demo.model.Song;
+import com.kma.demo.data.model.Song;
 import com.kma.demo.service.MusicService;
 import com.kma.demo.utils.AppUtil;
 import com.kma.demo.utils.GlideUtils;

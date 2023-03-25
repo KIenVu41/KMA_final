@@ -1,19 +1,12 @@
 package com.kma.demo.controller;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.database.Cursor;
-import android.provider.MediaStore;
-import android.util.Log;
 
 import com.kma.demo.constant.Constant;
-import com.kma.demo.model.Song;
-import com.kma.demo.network.RetrofitInstance;
-import com.kma.demo.network.ApiService;
+import com.kma.demo.data.model.Song;
+import com.kma.demo.data.network.RetrofitInstance;
+import com.kma.demo.data.network.ApiService;
 import com.kma.demo.utils.StorageUtil;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.io.File;
 import java.util.ArrayList;

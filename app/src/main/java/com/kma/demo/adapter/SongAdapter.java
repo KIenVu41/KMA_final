@@ -1,6 +1,5 @@
 package com.kma.demo.adapter;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.kma.demo.databinding.ItemSongBinding;
 import com.kma.demo.listener.IOnClickSongItemListener;
-import com.kma.demo.model.Song;
+import com.kma.demo.data.model.Song;
 import com.kma.demo.utils.GlideUtils;
 
 import java.util.List;

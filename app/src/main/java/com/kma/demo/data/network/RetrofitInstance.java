@@ -1,4 +1,4 @@
-package com.kma.demo.network;
+package com.kma.demo.data.network;
 
 import static java.util.concurrent.TimeUnit.*;
 import com.kma.demo.constant.Constant;

@@ -25,11 +25,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
-import com.kma.demo.MyApplication;
-import com.kma.demo.R;
 import com.kma.demo.activity.MainActivity;
 import com.kma.demo.activity.PlayMusicActivity;
 import com.kma.demo.adapter.BannerSongAdapter;
@@ -39,8 +34,8 @@ import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
 import com.kma.demo.databinding.FragmentHomeBinding;
-import com.kma.demo.model.Song;
-import com.kma.demo.model.SongDiffUtilCallBack;
+import com.kma.demo.data.model.Song;
+import com.kma.demo.data.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
 import com.kma.demo.utils.StringUtil;
 

@@ -1,4 +1,4 @@
-package com.kma.demo.model;
+package com.kma.demo.data.model;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;

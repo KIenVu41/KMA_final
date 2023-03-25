@@ -13,21 +13,17 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.widget.RemoteViews;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import com.kma.demo.MyApplication;
 import com.kma.demo.R;
 import com.kma.demo.activity.MainActivity;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
-import com.kma.demo.model.Song;
+import com.kma.demo.data.model.Song;
 import com.kma.demo.utils.StringUtil;
 
 import java.util.ArrayList;

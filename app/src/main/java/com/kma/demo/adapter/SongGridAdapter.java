@@ -10,10 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.kma.demo.databinding.ItemSongGridBinding;
 import com.kma.demo.listener.IOnClickSongItemListener;
-import com.kma.demo.model.Song;
+import com.kma.demo.data.model.Song;
 import com.kma.demo.utils.GlideUtils;
-
-import java.util.List;
 
 public class SongGridAdapter extends ListAdapter<Song, SongGridAdapter.SongGridViewHolder> {
 

@@ -50,7 +50,8 @@
 
         <activity
             android:exported="false"
-            android:name="com.kma.demo.activity.PlayMusicActivity" />
+            android:name="com.kma.demo.activity.PlayMusicActivity"
+            android:configChanges="orientation|screenSize|layoutDirection"/>
 
     </application>
 

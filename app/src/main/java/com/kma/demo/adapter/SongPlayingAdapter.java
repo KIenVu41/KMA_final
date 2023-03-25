@@ -12,10 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.kma.demo.R;
 import com.kma.demo.databinding.ItemSongPlayingBinding;
 import com.kma.demo.listener.IOnClickSongPlayingItemListener;
-import com.kma.demo.model.Song;
+import com.kma.demo.data.model.Song;
 import com.kma.demo.utils.GlideUtils;
-
-import java.util.List;
 
 public class SongPlayingAdapter extends ListAdapter<Song, SongPlayingAdapter.SongPlayingViewHolder> {
 
