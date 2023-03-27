@@ -6,6 +6,10 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 
+import com.google.android.exoplayer2.database.ExoDatabaseProvider;
+import com.google.android.exoplayer2.database.StandaloneDatabaseProvider;
+import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
+import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -14,7 +18,10 @@ import com.kma.demo.constant.Constant;
 public class MyApplication extends Application {
     public static final String CHANNEL_ID = "channel_music_basic_id";
     private static final String CHANNEL_NAME = "channel_music_basic_name";
-    private FirebaseDatabase mFirebaseDatabase;
+    public static SimpleCache cache;
+    private int cacheSize = 90 * 1024 * 1024;
+    private LeastRecentlyUsedCacheEvictor cacheEvictor;
+    private ExoDatabaseProvider exoDatabaseProvider;
 
     public static MyApplication get(Context context) {
         return (MyApplication) context.getApplicationContext();
@@ -23,8 +30,9 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        //FirebaseApp.initializeApp(this);
-        //mFirebaseDatabase = FirebaseDatabase.getInstance(Constant.FIREBASE_URL);
+        cacheEvictor = new LeastRecentlyUsedCacheEvictor(cacheSize);
+        exoDatabaseProvider = new ExoDatabaseProvider(this);
+        cache = new SimpleCache(getCacheDir(), cacheEvictor, exoDatabaseProvider);
         createChannelNotification();
     }
 
@@ -42,13 +50,5 @@ public class MyApplication extends Application {
     public void onLowMemory() {
         super.onLowMemory();
         //deleteCache(this);
-    }
-
-    public DatabaseReference getSongsDatabaseReference() {
-        return mFirebaseDatabase.getReference("/songs");
-    }
-
-    public DatabaseReference getCountViewDatabaseReference(int songId) {
-        return FirebaseDatabase.getInstance().getReference("/songs/" + songId + "/count");
     }
 }

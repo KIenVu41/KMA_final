@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
+import com.google.android.exoplayer2.upstream.cache.SimpleCache;
+import com.kma.demo.MyApplication;
 import com.kma.demo.R;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
@@ -35,11 +48,17 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
     private FragmentPlaySongBinding mFragmentPlaySongBinding;
     private Timer mTimer;
     private int mAction;
+    private HttpDataSource.Factory mHttpDataSourceFactory;
+    private DefaultDataSourceFactory mDefaultDataSourceFactory;
+    private DataSource.Factory mCacheDataSourceFactory;
+    private SimpleExoPlayer exoPlayer;
+    private SimpleCache cache = MyApplication.cache;
+
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             mAction = intent.getIntExtra(Constant.MUSIC_ACTION, 0);
-            handleMusicAction();
+            //handleMusicAction();
         }
     };
 
@@ -55,32 +74,60 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
         initControl();
         showInforSong();
         mAction = MusicService.mAction;
-        handleMusicAction();
+        //handleMusicAction();
 
         return mFragmentPlaySongBinding.getRoot();
     }
 
     private void initControl() {
-        mTimer = new Timer();
+//        mTimer = new Timer();
+//
+//        mFragmentPlaySongBinding.imgPrevious.setOnClickListener(this);
+//        mFragmentPlaySongBinding.imgPlay.setOnClickListener(this);
+//        mFragmentPlaySongBinding.imgNext.setOnClickListener(this);
+//
+//        mFragmentPlaySongBinding.seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                MusicService.mPlayer.seekTo(seekBar.getProgress());
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//            }
+//
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//            }
+//        });
 
-        mFragmentPlaySongBinding.imgPrevious.setOnClickListener(this);
-        mFragmentPlaySongBinding.imgPlay.setOnClickListener(this);
-        mFragmentPlaySongBinding.imgNext.setOnClickListener(this);
+        String videoUrl = MusicService.mListSongPlaying.get(MusicService.mSongPosition).getUrl();
 
-        mFragmentPlaySongBinding.seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                MusicService.mPlayer.seekTo(seekBar.getProgress());
-            }
+        mHttpDataSourceFactory = new DefaultHttpDataSource.Factory()
+                .setAllowCrossProtocolRedirects(true);
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
+        this.mDefaultDataSourceFactory = new DefaultDataSourceFactory(
+                MyApplication.get(getActivity()), mHttpDataSourceFactory
+        );
 
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            }
-        });
+        mCacheDataSourceFactory = new CacheDataSource.Factory()
+                .setCache(cache)
+                .setUpstreamDataSourceFactory(mHttpDataSourceFactory)
+                .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
+
+
+        exoPlayer = new SimpleExoPlayer.Builder(MyApplication.get(getActivity()))
+                .setMediaSourceFactory(new DefaultMediaSourceFactory(mCacheDataSourceFactory)).build();
+
+        Uri videoUri = Uri.parse(videoUrl);
+        MediaItem mediaItem = MediaItem.fromUri(videoUri);
+        MediaSource mediaSource = new ProgressiveMediaSource.Factory(mCacheDataSourceFactory).createMediaSource(mediaItem);
+
+        mFragmentPlaySongBinding.playerView.setPlayer(exoPlayer);
+        exoPlayer.setPlayWhenReady(true);
+        exoPlayer.seekTo(0, 0);
+        exoPlayer.setMediaSource(mediaSource, true);
+        exoPlayer.prepare();
     }
 
     private void showInforSong() {
@@ -167,11 +214,11 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
     }
 
     private void showStatusButtonPlay() {
-        if (MusicService.isPlaying) {
-            mFragmentPlaySongBinding.imgPlay.setImageResource(R.drawable.ic_pause_black);
-        } else {
-            mFragmentPlaySongBinding.imgPlay.setImageResource(R.drawable.ic_play_black);
-        }
+//        if (MusicService.isPlaying) {
+//            mFragmentPlaySongBinding.imgPlay.setImageResource(R.drawable.ic_pause_black);
+//        } else {
+//            mFragmentPlaySongBinding.imgPlay.setImageResource(R.drawable.ic_play_black);
+//        }
     }
 
     @Override

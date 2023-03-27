@@ -1,6 +1,9 @@
 package com.kma.demo.utils;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 public class AppUtil {
 

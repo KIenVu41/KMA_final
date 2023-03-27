@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
     android:orientation="vertical">
 
@@ -86,28 +87,34 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/img_previous"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_previous_black"
-                tools:ignore="ContentDescription" />
+<!--            <ImageView-->
+<!--                android:id="@+id/img_previous"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:src="@drawable/ic_previous_black"-->
+<!--                tools:ignore="ContentDescription" />-->
 
-            <ImageView
-                android:id="@+id/img_play"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/define_dimen_20"
-                android:layout_marginEnd="@dimen/define_dimen_20"
-                android:src="@drawable/ic_play_black"
-                tools:ignore="ContentDescription" />
+<!--            <ImageView-->
+<!--                android:id="@+id/img_play"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="@dimen/define_dimen_20"-->
+<!--                android:layout_marginEnd="@dimen/define_dimen_20"-->
+<!--                android:src="@drawable/ic_play_black"-->
+<!--                tools:ignore="ContentDescription" />-->
 
-            <ImageView
-                android:id="@+id/img_next"
-                android:layout_width="wrap_content"
+<!--            <ImageView-->
+<!--                android:id="@+id/img_next"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:src="@drawable/ic_next_black"-->
+<!--                tools:ignore="ContentDescription" />-->
+            <com.google.android.exoplayer2.ui.PlayerView
+                android:id="@+id/player_view"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_next_black"
-                tools:ignore="ContentDescription" />
+                app:show_buffering="when_playing"
+                app:show_shuffle_button="true" />
         </LinearLayout>
     </LinearLayout>
 
