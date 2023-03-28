@@ -19,7 +19,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.kma.demo.MyApplication;
 import com.kma.demo.R;
-import com.kma.demo.activity.MainActivity;
+import com.kma.demo.ui.activity.MainActivity;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
@@ -29,7 +29,7 @@ import com.kma.demo.utils.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, SongController.SongCallbackListener {
+public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
     public static boolean isPlaying;
     public static List<Song> mListSongPlaying;
@@ -261,7 +261,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     private void changeCountViewSong() {
         String songId = mListSongPlaying.get(mSongPosition).getDocId();
-        songController.updateCount(songId);
+//        songController.updateCount(songId);
     }
 
     @Override
@@ -273,17 +273,17 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
-    @Override
-    public void onFetchProgress(int mode) {
-
-    }
-
-    @Override
-    public void onFetchComplete(List<Song> songs) {
-    }
-
-    @Override
-    public void onUpdateComplete(int count) {
-
-    }
+//    @Override
+//    public void onFetchProgress(int mode) {
+//
+//    }
+//
+//    @Override
+//    public void onFetchComplete(List<Song> songs) {
+//    }
+//
+//    @Override
+//    public void onUpdateComplete(int count) {
+//
+//    }
 }

@@ -1,4 +1,4 @@
-package com.kma.demo.viewmodel;
+package com.kma.demo.ui.viewmodel;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;

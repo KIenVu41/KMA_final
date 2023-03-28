@@ -1,4 +1,4 @@
-package com.kma.demo.fragment;
+package com.kma.demo.ui.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
-import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -230,6 +229,10 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
         }
         if (getActivity() != null) {
             LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mBroadcastReceiver);
+        }
+        if(exoPlayer != null) {
+            exoPlayer.release();
+            exoPlayer = null;
         }
     }
 

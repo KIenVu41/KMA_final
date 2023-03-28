@@ -1,4 +1,4 @@
-package com.kma.demo.fragment;
+package com.kma.demo.ui.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;

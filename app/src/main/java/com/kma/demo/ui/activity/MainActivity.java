@@ -1,4 +1,4 @@
-package com.kma.demo.activity;
+package com.kma.demo.ui.activity;
 
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
@@ -18,12 +18,12 @@ import com.kma.demo.R;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.databinding.ActivityMainBinding;
-import com.kma.demo.fragment.AllSongsFragment;
-import com.kma.demo.fragment.FeaturedSongsFragment;
-import com.kma.demo.fragment.HomeFragment;
-import com.kma.demo.fragment.LibraryFragment;
-import com.kma.demo.fragment.NewSongsFragment;
-import com.kma.demo.fragment.PopularSongsFragment;
+import com.kma.demo.ui.fragment.AllSongsFragment;
+import com.kma.demo.ui.fragment.FeaturedSongsFragment;
+import com.kma.demo.ui.fragment.HomeFragment;
+import com.kma.demo.ui.fragment.LibraryFragment;
+import com.kma.demo.ui.fragment.NewSongsFragment;
+import com.kma.demo.ui.fragment.PopularSongsFragment;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.service.MusicService;
 import com.kma.demo.utils.GlideUtils;

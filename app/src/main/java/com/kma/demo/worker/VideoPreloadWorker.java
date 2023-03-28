@@ -19,6 +19,8 @@ import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.kma.demo.MyApplication;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class VideoPreloadWorker extends Worker {
      private HttpDataSource.Factory mHttpDataSourceFactory;
@@ -65,13 +67,14 @@ public class VideoPreloadWorker extends Worker {
             }
         };
 
-        new Thread(new Runnable() {
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 cacheAudio(dataSpec, progressListener);
                 preCacheAudio(audioUrl);
             }
-        }).start();
+        });
     }
 
     private void cacheAudio(DataSpec dataSpec, CacheWriter.ProgressListener mProgressListener) {

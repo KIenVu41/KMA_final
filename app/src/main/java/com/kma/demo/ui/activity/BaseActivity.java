@@ -1,4 +1,4 @@
-package com.kma.demo.activity;
+package com.kma.demo.ui.activity;
 
 import android.os.Bundle;
 

@@ -1,4 +1,4 @@
-package com.kma.demo.widget;
+package com.kma.demo.ui.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

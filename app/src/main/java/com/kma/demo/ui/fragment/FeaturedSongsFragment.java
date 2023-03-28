@@ -1,4 +1,4 @@
-package com.kma.demo.fragment;
+package com.kma.demo.ui.fragment;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -16,30 +16,45 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
-import com.kma.demo.activity.MainActivity;
-import com.kma.demo.activity.PlayMusicActivity;
+import com.kma.demo.MyApplication;
+import com.kma.demo.data.repository.SongRepository;
+import com.kma.demo.ui.activity.MainActivity;
+import com.kma.demo.ui.activity.PlayMusicActivity;
 import com.kma.demo.adapter.SongAdapter;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
-import com.kma.demo.databinding.FragmentPopularSongsBinding;
+import com.kma.demo.databinding.FragmentFeaturedSongsBinding;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.data.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
+import com.kma.demo.ui.viewmodel.SongViewModel;
+import com.kma.demo.ui.viewmodel.SongViewModelFactory;
+import com.kma.demo.worker.VideoPreloadWorker;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class PopularSongsFragment extends Fragment implements SongController.SongCallbackListener {
+public class FeaturedSongsFragment extends Fragment {
 
-    private FragmentPopularSongsBinding mFragmentPopularSongsBinding;
+    private FragmentFeaturedSongsBinding mFragmentFeaturedSongsBinding;
+    private SongViewModel songViewModel;
+    private SongRepository songRepository;
     private List<Song> mListSong;
     private SongAdapter songAdapter;
-    private SongController songController;
     private SongDiffUtilCallBack songDiffUtilCallBack;
+    private SongController songController;
     private DownloadManager downloadManager;
     private long enqueue = 0;
     private BroadcastReceiver downloadReceiver = null;
@@ -47,10 +62,28 @@ public class PopularSongsFragment extends Fragment implements SongController.Son
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mFragmentPopularSongsBinding = FragmentPopularSongsBinding.inflate(inflater, container, false);
+        mFragmentFeaturedSongsBinding = FragmentFeaturedSongsBinding.inflate(inflater, container, false);
 
-        songController = new SongController(this);
         songDiffUtilCallBack = new SongDiffUtilCallBack();
+        displayListFeaturedSongs();
+        songRepository = new SongRepository();
+        songViewModel = new ViewModelProvider(requireActivity(), new SongViewModelFactory(songRepository)).get(SongViewModel.class);
+        songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
+            @Override
+            public void onChanged(List<Song> songs) {
+                mListSong = new ArrayList<>();
+                for (Song song : songs) {
+                    if (song == null) {
+                        return;
+                    }
+
+                    if (song.isFeatured()) {
+                        mListSong.add(0, song);
+                    }
+                }
+                songAdapter.submitList(mListSong);
+            }
+        });
 
         if(downloadReceiver == null) {
             downloadReceiver = new BroadcastReceiver() {
@@ -69,59 +102,52 @@ public class PopularSongsFragment extends Fragment implements SongController.Son
             requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         }
 
-        displayListPopularSongs();
-        getListPopularSongs();
+        getListFeaturedSongs();
         initListener();
 
-        return mFragmentPopularSongsBinding.getRoot();
+        return mFragmentFeaturedSongsBinding.getRoot();
     }
 
-    private void getListPopularSongs() {
+    private void getListFeaturedSongs() {
         if (getActivity() == null) {
             return;
         }
-        songController.fetchAllData("");
-//        MyApplication.get(getActivity()).getSongsDatabaseReference().addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                mListSong = new ArrayList<>();
-//                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-//                    Song song = dataSnapshot.getValue(Song.class);
-//                    if (song == null) {
-//                        return;
-//                    }
-//                    if (song.getCount() > 0) {
-//                        mListSong.add(song);
-//                    }
-//                }
-//                Collections.sort(mListSong, (song1, song2) -> song2.getCount() - song1.getCount());
-//                displayListPopularSongs();
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                GlobalFuntion.showToastMessage(getActivity(), getString(R.string.msg_get_date_error));
-//            }
-//        });
+        songViewModel.getAllSongs("");
     }
 
-    private void displayListPopularSongs() {
+    private void displayListFeaturedSongs() {
         if (getActivity() == null) {
             return;
         }
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        mFragmentPopularSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
+        mFragmentFeaturedSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
 
         songAdapter = new SongAdapter(songDiffUtilCallBack, this::goToSongDetail, this::downloadFile);
-        mFragmentPopularSongsBinding.rcvData.setAdapter(songAdapter);
+        mFragmentFeaturedSongsBinding.rcvData.setAdapter(songAdapter);
     }
 
     private void goToSongDetail(@NonNull Song song) {
         MusicService.clearListSongPlaying();
         MusicService.mListSongPlaying.add(song);
         MusicService.isPlaying = false;
-        GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
-        GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
+        schedulePreloadWork(song.getUrl());
+//        GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
+//        GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
+        startActivity(new Intent(getActivity(), PlayMusicActivity.class).putExtra("AUDIO_URL", song.getUrl()));
+    }
+
+    private void schedulePreloadWork(String url) {
+        WorkManager workManager = WorkManager.getInstance(MyApplication.get(getActivity()));
+        Constraints constraints=new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+        OneTimeWorkRequest myWorkRequest = new OneTimeWorkRequest.Builder(VideoPreloadWorker.class)
+                .setConstraints(constraints)
+                .setInputData(new Data.Builder().putString("AUDIO_URL", url).build())
+                .build();
+        workManager.enqueueUniqueWork("MusicPreloadWorker",
+                ExistingWorkPolicy.KEEP, myWorkRequest);
     }
 
     private void downloadFile(@NonNull Song song) {
@@ -155,28 +181,28 @@ public class PopularSongsFragment extends Fragment implements SongController.Son
         });
     }
 
-    @Override
-    public void onFetchProgress(int mode) {
-
-    }
-
-    @Override
-    public void onFetchComplete(List<Song> songs) {
-        mListSong = new ArrayList<>();
-        for (Song song : songs) {
-            if (song == null) {
-                return;
-            }
-            if (song.getCount() > 10) {
-                mListSong.add(song);
-            }
-        }
-        Collections.sort(mListSong, (song1, song2) -> song2.getCount() - song1.getCount());
-        songAdapter.submitList(mListSong);
-    }
-
-    @Override
-    public void onUpdateComplete(int count) {
-
-    }
+//    @Override
+//    public void onFetchProgress(int mode) {
+//
+//    }
+//
+//    @Override
+//    public void onFetchComplete(List<Song> songs) {
+//        mListSong = new ArrayList<>();
+//        for (Song song : songs) {
+//            if (song == null) {
+//                return;
+//            }
+//
+//            if (song.isFeatured()) {
+//                mListSong.add(0, song);
+//            }
+//        }
+//        songAdapter.submitList(mListSong);
+//    }
+//
+//    @Override
+//    public void onUpdateComplete(int count) {
+//
+//    }
 }

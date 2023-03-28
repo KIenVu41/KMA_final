@@ -1,5 +1,6 @@
-package com.kma.demo.fragment;
+package com.kma.demo.ui.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,8 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.kma.demo.MyApplication;
-import com.kma.demo.activity.MainActivity;
-import com.kma.demo.activity.PlayMusicActivity;
+import com.kma.demo.ui.activity.MainActivity;
+import com.kma.demo.ui.activity.PlayMusicActivity;
 import com.kma.demo.adapter.SongAdapter;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
@@ -72,8 +73,9 @@ public class LibraryFragment extends Fragment {
         MusicService.clearListSongPlaying();
         MusicService.mListSongPlaying.add(song);
         MusicService.isPlaying = false;
-        GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
-        GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
+//        GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
+//        GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
+        startActivity(new Intent(getActivity(), PlayMusicActivity.class).putExtra("AUDIO_URL", song.getUrl()));
     }
 
     private void initListener() {

@@ -3,6 +3,7 @@ package com.kma.demo.utils;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.kma.demo.R;
 
 public class GlideUtils {
@@ -16,6 +17,7 @@ public class GlideUtils {
                 .load(url)
                 .error(R.drawable.img_no_image)
                 .dontAnimate()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(imageView);
     }
 

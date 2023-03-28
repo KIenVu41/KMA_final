@@ -36,7 +36,7 @@
 
         <activity
             android:exported="true"
-            android:name="com.kma.demo.activity.SplashActivity">
+            android:name=".ui.activity.SplashActivity">
             <intent-filter>
                 <action
                     android:name="android.intent.action.MAIN" />
@@ -46,11 +46,11 @@
 
         <activity
             android:exported="false"
-            android:name="com.kma.demo.activity.MainActivity" />
+            android:name=".ui.activity.MainActivity" />
 
         <activity
             android:exported="false"
-            android:name="com.kma.demo.activity.PlayMusicActivity"
+            android:name=".ui.activity.PlayMusicActivity"
             android:configChanges="orientation|screenSize|layoutDirection"/>
 
     </application>

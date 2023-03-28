@@ -1,4 +1,4 @@
-package com.kma.demo.fragment;
+package com.kma.demo.ui.fragment;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +16,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -27,47 +27,62 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.kma.demo.MyApplication;
-import com.kma.demo.activity.MainActivity;
-import com.kma.demo.activity.PlayMusicActivity;
-import com.kma.demo.adapter.PaginationScrollListener;
+import com.kma.demo.data.repository.SongRepository;
+import com.kma.demo.ui.activity.MainActivity;
+import com.kma.demo.ui.activity.PlayMusicActivity;
 import com.kma.demo.adapter.SongAdapter;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
-import com.kma.demo.databinding.FragmentAllSongsBinding;
+import com.kma.demo.databinding.FragmentNewSongsBinding;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.data.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
+import com.kma.demo.ui.viewmodel.SongViewModel;
+import com.kma.demo.ui.viewmodel.SongViewModelFactory;
+import com.kma.demo.utils.StringUtil;
 import com.kma.demo.worker.VideoPreloadWorker;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AllSongsFragment extends Fragment implements SongController.SongCallbackListener {
+public class NewSongsFragment extends Fragment implements SongController.SongCallbackListener {
 
-    private FragmentAllSongsBinding mFragmentAllSongsBinding;
+    private FragmentNewSongsBinding mFragmentNewSongsBinding;
+    private SongViewModel songViewModel;
+    private SongRepository songRepository;
     private List<Song> mListSong;
-    private List<Song> rowsArrayList = new ArrayList<>();
+    private SongAdapter songAdapter;
     private SongController songController;
     private SongDiffUtilCallBack songDiffUtilCallBack;
-    private SongAdapter songAdapter;
     private DownloadManager downloadManager;
     private long enqueue = 0;
     private BroadcastReceiver downloadReceiver = null;
-    private boolean isLoading = false;
-    private boolean isLastPage = false;
-    private int totalPage = 5;
-    private int currentPage = 1;
-    private int visibleItem = 0;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mFragmentAllSongsBinding = FragmentAllSongsBinding.inflate(inflater, container, false);
+        mFragmentNewSongsBinding = FragmentNewSongsBinding.inflate(inflater, container, false);
 
-        songController = new SongController(this);
         songDiffUtilCallBack = new SongDiffUtilCallBack();
-
+        displayListNewSongs();
+        songRepository = new SongRepository();
+        songViewModel = new ViewModelProvider(requireActivity(), new SongViewModelFactory(songRepository)).get(SongViewModel.class);
+        songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
+            @Override
+            public void onChanged(List<Song> songs) {
+                mListSong = new ArrayList<>();
+                for (Song song : songs) {
+                    if (song == null) {
+                        return;
+                    }
+                    if (song.isLatest()) {
+                        mListSong.add(0, song);
+                    }
+                }
+                songAdapter.submitList(mListSong);
+            }
+        });
         if(downloadReceiver == null) {
             downloadReceiver = new BroadcastReceiver() {
                 @Override
@@ -85,73 +100,28 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
             requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         }
 
-        displayListAllSongs();
-        getListAllSongs();
+        getListNewSongs();
         initListener();
 
-        return mFragmentAllSongsBinding.getRoot();
+        return mFragmentNewSongsBinding.getRoot();
     }
 
-    private void getListAllSongs() {
+    private void getListNewSongs() {
         if (getActivity() == null) {
             return;
         }
-        songController.fetchAllData("");
+        songViewModel.getAllSongs("");
     }
 
-    private void displayListAllSongs() {
+    private void displayListNewSongs() {
         if (getActivity() == null) {
             return;
         }
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        visibleItem = linearLayoutManager.getItemCount();
-        mFragmentAllSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
+        mFragmentNewSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
 
         songAdapter = new SongAdapter(songDiffUtilCallBack, this::goToSongDetail, this::downloadFile);
-        mFragmentAllSongsBinding.rcvData.setAdapter(songAdapter);
-//        mFragmentAllSongsBinding.rcvData.addOnScrollListener(new PaginationScrollListener(linearLayoutManager) {
-//            @Override
-//            protected void loadMoreItems() {
-//                isLoading = true;
-//                currentPage++;
-//                loadNextPage();
-//            }
-//
-//            @Override
-//            public boolean isLastPage() {
-//                return isLastPage;
-//            }
-//
-//            @Override
-//            public boolean isLoading() {
-//                return isLoading;
-//            }
-//        });
-    }
-
-    private void loadNextPage() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                songAdapter.removeFooterLoading();
-                rowsArrayList.addAll(getPageSong());
-                songAdapter.submitList(rowsArrayList);
-                isLoading = false;
-                if(currentPage < totalPage) {
-                    songAdapter.addFooterLoading();
-                } else {
-                    isLastPage = true;
-                }
-            }
-        }, 2000 );
-    }
-
-    private List<Song> getPageSong() {
-        List<Song> pageSong = new ArrayList<>();
-        for(int i = 0; i < currentPage * 10; i++) {
-            pageSong.add(mListSong.get(i));
-        }
-        return pageSong;
+        mFragmentNewSongsBinding.rcvData.setAdapter(songAdapter);
     }
 
     private void goToSongDetail(@NonNull Song song) {
@@ -159,9 +129,23 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
         MusicService.mListSongPlaying.add(song);
         MusicService.isPlaying = false;
         schedulePreloadWork(song.getUrl());
-        //GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
-        //GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
+//        GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
+//        GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
         startActivity(new Intent(getActivity(), PlayMusicActivity.class).putExtra("AUDIO_URL", song.getUrl()));
+    }
+
+    private void schedulePreloadWork(String url) {
+        WorkManager workManager = WorkManager.getInstance(MyApplication.get(getActivity()));
+        Constraints constraints=new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+        OneTimeWorkRequest myWorkRequest = new OneTimeWorkRequest.Builder(VideoPreloadWorker.class)
+                .setConstraints(constraints)
+                .setInputData(new Data.Builder().putString("AUDIO_URL", url).build())
+                .build();
+        workManager.enqueueUniqueWork("MusicPreloadWorker",
+                ExistingWorkPolicy.KEEP, myWorkRequest);
     }
 
     private void downloadFile(@NonNull Song song) {
@@ -195,19 +179,6 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
         });
     }
 
-    private void schedulePreloadWork(String url) {
-        WorkManager workManager = WorkManager.getInstance(MyApplication.get(getActivity()));
-        Constraints constraints=new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .setRequiresBatteryNotLow(true)
-                .build();
-        OneTimeWorkRequest myWorkRequest = new OneTimeWorkRequest.Builder(VideoPreloadWorker.class)
-                .setConstraints(constraints)
-                .setInputData(new Data.Builder().putString("AUDIO_URL", url).build())
-                .build();
-        workManager.enqueueUniqueWork("MusicPreloadWorker",
-                ExistingWorkPolicy.KEEP, myWorkRequest);
-    }
     @Override
     public void onFetchProgress(int mode) {
 
@@ -220,28 +191,11 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
             if (song == null) {
                 return;
             }
-            mListSong.add(0, song);
-
+            if (song.isLatest()) {
+                mListSong.add(0, song);
+            }
         }
-
-//        if(mListSong.size() % 10 == 0) {
-//            totalPage = mListSong.size() % 10;
-//        } else {
-//            totalPage = (mListSong.size() / 10) + 1;
-//        }
-
-        int i = 0;
-        while (i < 10) {
-            rowsArrayList.add(mListSong.get(i));
-            i++;
-        }
-        songAdapter.submitList(rowsArrayList);
-
-//        if(currentPage < totalPage) {
-//            songAdapter.addFooterLoading();
-//        } else {
-//            isLastPage = true;
-//        }
+        songAdapter.submitList(mListSong);
     }
 
     @Override

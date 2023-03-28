@@ -1,4 +1,4 @@
-package com.kma.demo.fragment;
+package com.kma.demo.ui.fragment;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -20,13 +20,23 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewpager2.widget.ViewPager2;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 
-import com.kma.demo.activity.MainActivity;
-import com.kma.demo.activity.PlayMusicActivity;
+import com.kma.demo.MyApplication;
+import com.kma.demo.data.repository.SongRepository;
+import com.kma.demo.ui.activity.MainActivity;
+import com.kma.demo.ui.activity.PlayMusicActivity;
 import com.kma.demo.adapter.BannerSongAdapter;
 import com.kma.demo.adapter.SongAdapter;
 import com.kma.demo.adapter.SongGridAdapter;
@@ -37,7 +47,10 @@ import com.kma.demo.databinding.FragmentHomeBinding;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.data.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
+import com.kma.demo.ui.viewmodel.SongViewModel;
+import com.kma.demo.ui.viewmodel.SongViewModelFactory;
 import com.kma.demo.utils.StringUtil;
+import com.kma.demo.worker.VideoPreloadWorker;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +59,8 @@ import java.util.List;
 public class HomeFragment extends Fragment implements SongController.SongCallbackListener {
 
     private FragmentHomeBinding mFragmentHomeBinding;
-
+    private SongViewModel songViewModel;
+    private SongRepository songRepository;
     private List<Song> mListSong;
     private List<Song> mListNewSong;
     private List<Song> mListPopularSong;
@@ -82,7 +96,35 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
         mFragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false);
 
         songDiffUtilCallBack = new SongDiffUtilCallBack();
-        songController = new SongController(this);
+        displayListBannerSongs();
+        displayListPopularSongs();
+        displayListNewSongs();
+        songRepository = new SongRepository();
+        songViewModel = new ViewModelProvider(requireActivity(), new SongViewModelFactory(songRepository)).get(SongViewModel.class);
+        songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
+            @Override
+            public void onChanged(List<Song> songs) {
+                mFragmentHomeBinding.layoutContent.setVisibility(View.VISIBLE);
+                mListSong = new ArrayList<>();
+                for (Song song : songs) {
+                    if (song == null) {
+                        return;
+                    }
+
+                    if (StringUtil.isEmpty(strKey)) {
+                        mListSong.add(0, song);
+                    } else {
+                        if (GlobalFuntion.getTextSearch(song.getTitle()).toLowerCase().trim()
+                                .contains(GlobalFuntion.getTextSearch(strKey).toLowerCase().trim())) {
+                            mListSong.add(0, song);
+                        }
+                    }
+                }
+                getListBannerSongs();
+                getListPopularSongs();
+                getListNewSongs();
+            }
+        });
 
         if(downloadReceiver == null) {
             downloadReceiver = new BroadcastReceiver() {
@@ -101,10 +143,6 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
             requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
         }
 
-
-        displayListBannerSongs();
-        displayListPopularSongs();
-        displayListNewSongs();
         getListSongFromServer("");
         initListener();
 
@@ -162,37 +200,7 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
         if (getActivity() == null) {
             return;
         }
-        songController.fetchAllData(key);
-//        MyApplication.get(getActivity()).getSongsDatabaseReference().addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                mFragmentHomeBinding.layoutContent.setVisibility(View.VISIBLE);
-//                mListSong = new ArrayList<>();
-//                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-//                    Song song = dataSnapshot.getValue(Song.class);
-//                    if (song == null) {
-//                        return;
-//                    }
-//
-//                    if (StringUtil.isEmpty(key)) {
-//                        mListSong.add(0, song);
-//                    } else {
-//                        if (GlobalFuntion.getTextSearch(song.getTitle()).toLowerCase().trim()
-//                                .contains(GlobalFuntion.getTextSearch(key).toLowerCase().trim())) {
-//                            mListSong.add(0, song);
-//                        }
-//                    }
-//                }
-//                displayListBannerSongs();
-//                displayListPopularSongs();
-//                displayListNewSongs();
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                GlobalFuntion.showToastMessage(getActivity(), getString(R.string.msg_get_date_error));
-//            }
-//        });
+        songViewModel.getAllSongs("");
     }
 
     private void displayListBannerSongs() {
@@ -302,8 +310,24 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
         MusicService.clearListSongPlaying();
         MusicService.mListSongPlaying.add(song);
         MusicService.isPlaying = false;
-        GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
-        GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
+        schedulePreloadWork(song.getUrl());
+//        GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
+//        GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
+        startActivity(new Intent(getActivity(), PlayMusicActivity.class).putExtra("AUDIO_URL", song.getUrl()));
+    }
+
+    private void schedulePreloadWork(String url) {
+        WorkManager workManager = WorkManager.getInstance(MyApplication.get(getActivity()));
+        Constraints constraints=new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+        OneTimeWorkRequest myWorkRequest = new OneTimeWorkRequest.Builder(VideoPreloadWorker.class)
+                .setConstraints(constraints)
+                .setInputData(new Data.Builder().putString("AUDIO_URL", url).build())
+                .build();
+        workManager.enqueueUniqueWork("MusicPreloadWorker",
+                ExistingWorkPolicy.KEEP, myWorkRequest);
     }
 
     @Override
