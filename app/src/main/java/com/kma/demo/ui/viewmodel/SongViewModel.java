@@ -1,5 +1,7 @@
 package com.kma.demo.ui.viewmodel;
 
+import android.content.Context;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -20,6 +22,7 @@ import io.reactivex.schedulers.Schedulers;
 public class SongViewModel extends ViewModel {
     private final SongRepository songRepository;
     private MutableLiveData<List<Song>> mListSongLiveData = new MutableLiveData<>();
+    private MutableLiveData<List<Song>> mListLocalSongLiveData = new MutableLiveData<>();
     private CompositeDisposable compositeDisposable = null;
 
     @Inject
@@ -35,8 +38,19 @@ public class SongViewModel extends ViewModel {
                 .subscribe(list -> mListSongLiveData.setValue(list), throwable -> {}));
     }
 
+    public void fetchSongFromLocal(Context context) {
+        compositeDisposable.add(songRepository.fetchSongFromLocal(context)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(list -> mListLocalSongLiveData.setValue(list), throwable -> {}));
+    }
+
     public LiveData<List<Song>> getmListSongLiveData() {
         return mListSongLiveData;
+    }
+
+    public LiveData<List<Song>> getmListLocalSongLiveData() {
+        return mListLocalSongLiveData;
     }
 
     @Override

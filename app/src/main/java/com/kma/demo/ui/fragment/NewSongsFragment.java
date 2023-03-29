@@ -46,12 +46,16 @@ import com.kma.demo.worker.VideoPreloadWorker;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class NewSongsFragment extends Fragment {
 
     private FragmentNewSongsBinding mFragmentNewSongsBinding;
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
     private SongViewModel songViewModel;
     private List<Song> mListSong;
     private SongAdapter songAdapter;
@@ -69,7 +73,7 @@ public class NewSongsFragment extends Fragment {
 
         songDiffUtilCallBack = new SongDiffUtilCallBack();
         displayListNewSongs();
-        songViewModel = new ViewModelProvider(this).get(SongViewModel.class);
+        songViewModel = new ViewModelProvider(this, viewModelFactory).get(SongViewModel.class);
         songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
             @Override
             public void onChanged(List<Song> songs) {

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
@@ -23,14 +25,23 @@ import com.kma.demo.databinding.FragmentLibraryBinding;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.data.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
+import com.kma.demo.ui.viewmodel.SongViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class LibraryFragment extends Fragment {
 
     private FragmentLibraryBinding mFragmentLibraryBinding;
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+    private SongViewModel songViewModel;
     private List<Song> mListSong;
-    private SongController songController;
     private SongDiffUtilCallBack songDiffUtilCallBack;
     private SongAdapter songAdapter;
     private MainActivity activity;
@@ -40,10 +51,15 @@ public class LibraryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mFragmentLibraryBinding = FragmentLibraryBinding.inflate(inflater, container, false);
 
-        songController = new SongController(null);
         songDiffUtilCallBack = new SongDiffUtilCallBack();
-
+        songViewModel = new ViewModelProvider(this, viewModelFactory).get(SongViewModel.class);
         displayListLibrarySongs();
+        songViewModel.getmListLocalSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
+            @Override
+            public void onChanged(List<Song> songs) {
+                songAdapter.submitList(songs);
+            }
+        });
         getListLibrarySongs();
         initListener();
 
@@ -55,8 +71,7 @@ public class LibraryFragment extends Fragment {
             return;
         }
 
-        mListSong = songController.fetchSongFromLocal(MyApplication.get(requireActivity()));
-        songAdapter.submitList(mListSong);
+        songViewModel.fetchSongFromLocal(MyApplication.get(requireActivity()));
     }
 
     private void displayListLibrarySongs() {
