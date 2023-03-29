@@ -35,4 +35,10 @@ public class PlayMusicActivity extends BaseActivity {
         mActivityPlayMusicBinding.indicator3.setViewPager(mActivityPlayMusicBinding.viewpager2);
         mActivityPlayMusicBinding.viewpager2.setCurrentItem(1);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mActivityPlayMusicBinding.toolbar.imgLeft.setOnClickListener(null);
+    }
 }

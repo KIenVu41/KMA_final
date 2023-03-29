@@ -17,7 +17,7 @@ import com.kma.demo.utils.GlideUtils;
 
 public class SongPlayingAdapter extends ListAdapter<Song, SongPlayingAdapter.SongPlayingViewHolder> {
 
-    public final IOnClickSongPlayingItemListener iOnClickSongPlayingItemListener;
+    public IOnClickSongPlayingItemListener iOnClickSongPlayingItemListener;
 
     public SongPlayingAdapter(@NonNull DiffUtil.ItemCallback<Song> diffCallback, IOnClickSongPlayingItemListener iOnClickSongPlayingItemListener) {
         super(diffCallback);
@@ -49,7 +49,17 @@ public class SongPlayingAdapter extends ListAdapter<Song, SongPlayingAdapter.Son
         holder.mItemSongPlayingBinding.tvArtist.setText(song.getArtist());
 
         holder.mItemSongPlayingBinding.layoutItem.setOnClickListener(v
-                -> iOnClickSongPlayingItemListener.onClickItemSongPlaying(holder.getAdapterPosition()));
+                -> iOnClickSongPlayingItemListener.onClickItemSongPlaying(holder.getAbsoluteAdapterPosition()));
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull SongPlayingViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        holder.mItemSongPlayingBinding.layoutItem.setOnClickListener(null);
+    }
+
+    public void setCallback(IOnClickSongPlayingItemListener iOnClickSongPlayingItemListener) {
+        this.iOnClickSongPlayingItemListener = iOnClickSongPlayingItemListener;
     }
 
     public static class SongPlayingViewHolder extends RecyclerView.ViewHolder {

@@ -33,6 +33,7 @@ public class LibraryFragment extends Fragment {
     private SongController songController;
     private SongDiffUtilCallBack songDiffUtilCallBack;
     private SongAdapter songAdapter;
+    private MainActivity activity;
 
     @Nullable
     @Override
@@ -79,7 +80,7 @@ public class LibraryFragment extends Fragment {
     }
 
     private void initListener() {
-        MainActivity activity = (MainActivity) getActivity();
+        activity = (MainActivity) getActivity();
         if (activity == null || activity.getActivityMainBinding() == null) {
             return;
         }
@@ -90,5 +91,12 @@ public class LibraryFragment extends Fragment {
             GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
             GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
         });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        activity.getActivityMainBinding().header.layoutPlayAll.setOnClickListener(null);
+        songAdapter.setCallback(null);
     }
 }

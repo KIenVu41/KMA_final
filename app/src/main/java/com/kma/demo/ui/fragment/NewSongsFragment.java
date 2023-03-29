@@ -49,7 +49,7 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class NewSongsFragment extends Fragment implements SongController.SongCallbackListener {
+public class NewSongsFragment extends Fragment {
 
     private FragmentNewSongsBinding mFragmentNewSongsBinding;
     private SongViewModel songViewModel;
@@ -60,6 +60,7 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
     private DownloadManager downloadManager;
     private long enqueue = 0;
     private BroadcastReceiver downloadReceiver = null;
+    private MainActivity activity;
 
     @Nullable
     @Override
@@ -167,7 +168,7 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
     }
 
     private void initListener() {
-        MainActivity activity = (MainActivity) getActivity();
+        activity = (MainActivity) getActivity();
         if (activity == null || activity.getActivityMainBinding() == null) {
             return;
         }
@@ -181,26 +182,9 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
     }
 
     @Override
-    public void onFetchProgress(int mode) {
-
-    }
-
-    @Override
-    public void onFetchComplete(List<Song> songs) {
-        mListSong = new ArrayList<>();
-        for (Song song : songs) {
-            if (song == null) {
-                return;
-            }
-            if (song.isLatest()) {
-                mListSong.add(0, song);
-            }
-        }
-        songAdapter.submitList(mListSong);
-    }
-
-    @Override
-    public void onUpdateComplete(int count) {
-
+    public void onDestroyView() {
+        super.onDestroyView();
+        activity.getActivityMainBinding().header.layoutPlayAll.setOnClickListener(null);
+        songAdapter.setCallback(null);
     }
 }

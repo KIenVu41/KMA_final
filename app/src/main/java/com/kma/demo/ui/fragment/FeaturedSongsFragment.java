@@ -52,6 +52,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class FeaturedSongsFragment extends Fragment {
 
     private FragmentFeaturedSongsBinding mFragmentFeaturedSongsBinding;
+    private MainActivity activity;
     private SongViewModel songViewModel;
     private List<Song> mListSong;
     private SongAdapter songAdapter;
@@ -169,7 +170,7 @@ public class FeaturedSongsFragment extends Fragment {
     }
 
     private void initListener() {
-        MainActivity activity = (MainActivity) getActivity();
+        activity = (MainActivity) getActivity();
         if (activity == null || activity.getActivityMainBinding() == null) {
             return;
         }
@@ -182,28 +183,10 @@ public class FeaturedSongsFragment extends Fragment {
         });
     }
 
-//    @Override
-//    public void onFetchProgress(int mode) {
-//
-//    }
-//
-//    @Override
-//    public void onFetchComplete(List<Song> songs) {
-//        mListSong = new ArrayList<>();
-//        for (Song song : songs) {
-//            if (song == null) {
-//                return;
-//            }
-//
-//            if (song.isFeatured()) {
-//                mListSong.add(0, song);
-//            }
-//        }
-//        songAdapter.submitList(mListSong);
-//    }
-//
-//    @Override
-//    public void onUpdateComplete(int count) {
-//
-//    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        activity.getActivityMainBinding().header.layoutPlayAll.setOnClickListener(null);
+        songAdapter.setCallback(null);
+    }
 }

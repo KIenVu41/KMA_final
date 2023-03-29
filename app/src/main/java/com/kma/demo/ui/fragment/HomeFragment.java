@@ -59,7 +59,7 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class HomeFragment extends Fragment implements SongController.SongCallbackListener {
+public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding mFragmentHomeBinding;
     private SongViewModel songViewModel;
@@ -70,7 +70,6 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
     private SongAdapter songAdapter;
     private BannerSongAdapter bannerSongAdapter;
     private SongGridAdapter songGridAdapter;
-    private SongController songController;
     private String strKey = "";
     private DownloadManager downloadManager;
     private long enqueue = 0;
@@ -332,35 +331,13 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
     }
 
     @Override
-    public void onFetchProgress(int mode) {
-
-    }
-
-    @Override
-    public void onFetchComplete(List<Song> songs) {
-        mFragmentHomeBinding.layoutContent.setVisibility(View.VISIBLE);
-        mListSong = new ArrayList<>();
-        for (Song song : songs) {
-            if (song == null) {
-                return;
-            }
-
-            if (StringUtil.isEmpty(strKey)) {
-                mListSong.add(0, song);
-            } else {
-                if (GlobalFuntion.getTextSearch(song.getTitle()).toLowerCase().trim()
-                        .contains(GlobalFuntion.getTextSearch(strKey).toLowerCase().trim())) {
-                    mListSong.add(0, song);
-                }
-            }
-        }
-        getListBannerSongs();
-        getListPopularSongs();
-        getListNewSongs();
-    }
-
-    @Override
-    public void onUpdateComplete(int count) {
-
+    public void onDestroyView() {
+        super.onDestroyView();
+        mFragmentHomeBinding.imgSearch.setOnClickListener(null);
+        mFragmentHomeBinding.layoutViewAllPopular.setOnClickListener(null);
+        mFragmentHomeBinding.layoutViewAllNewSongs.setOnClickListener(null);
+        songAdapter.setCallback(null);
+        bannerSongAdapter.setCallback(null);
+        songGridAdapter.setCallback(null);
     }
 }

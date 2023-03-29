@@ -221,8 +221,8 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         if (mTimer != null) {
             mTimer.cancel();
             mTimer = null;

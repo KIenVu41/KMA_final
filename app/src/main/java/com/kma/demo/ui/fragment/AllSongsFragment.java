@@ -58,6 +58,7 @@ public class AllSongsFragment extends Fragment {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
     private SongViewModel songViewModel;
+    private MainActivity activity;
     private List<Song> mListSong;
     private List<Song> rowsArrayList = new ArrayList<>();
     private SongDiffUtilCallBack songDiffUtilCallBack;
@@ -92,7 +93,7 @@ public class AllSongsFragment extends Fragment {
                     if (song == null) {
                         return;
                     }
-                mListSong.add(0, song);
+                    mListSong.add(0, song);
                 }
                 int i = 0;
                 while (i < 20) {
@@ -101,20 +102,20 @@ public class AllSongsFragment extends Fragment {
                 }
                 songAdapter.submitList(rowsArrayList);
 
-                if(currentPage < totalPage) {
+                if (currentPage < totalPage) {
                     songAdapter.addFooterLoading();
                 } else {
                     isLastPage = true;
                 }
             }
         });
-        if(downloadReceiver == null) {
+        if (downloadReceiver == null) {
             downloadReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     String action = intent.getAction();
-                    if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
-                        if(isAdded()) {
+                    if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
+                        if (isAdded()) {
                             Toast.makeText(requireActivity(), "Download successfully", Toast.LENGTH_LONG).show();
                         }
                     }
@@ -182,18 +183,18 @@ public class AllSongsFragment extends Fragment {
                 rowsArrayList.addAll(getPageSong());
                 songAdapter.submitList(rowsArrayList);
                 isLoading = false;
-                if(currentPage < totalPage) {
+                if (currentPage < totalPage) {
                     songAdapter.addFooterLoading();
                 } else {
                     isLastPage = true;
                 }
             }
-        }, 2000 );
+        }, 2000);
     }
 
     private List<Song> getPageSong() {
         List<Song> pageSong = new ArrayList<>();
-        for(int i = 0; i < currentPage * 10; i++) {
+        for (int i = 0; i < currentPage * 10; i++) {
             pageSong.add(mListSong.get(i));
         }
         return pageSong;
@@ -227,7 +228,7 @@ public class AllSongsFragment extends Fragment {
     }
 
     private void initListener() {
-        MainActivity activity = (MainActivity) getActivity();
+        activity = (MainActivity) getActivity();
         if (activity == null || activity.getActivityMainBinding() == null) {
             return;
         }
@@ -242,7 +243,7 @@ public class AllSongsFragment extends Fragment {
 
     private void schedulePreloadWork(String url) {
         WorkManager workManager = WorkManager.getInstance(MyApplication.get(getActivity()));
-        Constraints constraints=new Constraints.Builder()
+        Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .setRequiresBatteryNotLow(true)
                 .build();
@@ -254,44 +255,10 @@ public class AllSongsFragment extends Fragment {
                 ExistingWorkPolicy.KEEP, myWorkRequest);
     }
 
-//    @Override
-//    public void onFetchProgress(int mode) {
-//
-//    }
-//
-//    @Override
-//    public void onFetchComplete(List<Song> songs) {
-//        mListSong = new ArrayList<>();
-//        for (Song song : songs) {
-//            if (song == null) {
-//                return;
-//            }
-//            mListSong.add(0, song);
-//
-//        }
-//
-////        if(mListSong.size() % 10 == 0) {
-////            totalPage = mListSong.size() % 10;
-////        } else {
-////            totalPage = (mListSong.size() / 10) + 1;
-////        }
-//
-//        int i = 0;
-//        while (i < 10) {
-//            rowsArrayList.add(mListSong.get(i));
-//            i++;
-//        }
-//        songAdapter.submitList(rowsArrayList);
-
-//        if(currentPage < totalPage) {
-//            songAdapter.addFooterLoading();
-//        } else {
-//            isLastPage = true;
-//        }
-//    }
-
-//    @Override
-//    public void onUpdateComplete(int count) {
-//
-//    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        activity.getActivityMainBinding().header.layoutPlayAll.setOnClickListener(null);
+        songAdapter.setCallback(null);
+    }
 }

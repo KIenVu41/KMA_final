@@ -15,7 +15,7 @@ import com.kma.demo.utils.GlideUtils;
 
 public class SongGridAdapter extends ListAdapter<Song, SongGridAdapter.SongGridViewHolder> {
 
-    public final IOnClickSongItemListener iOnClickSongItemListener;
+    public IOnClickSongItemListener iOnClickSongItemListener;
 
     public SongGridAdapter(@NonNull DiffUtil.ItemCallback<Song> diffCallback, IOnClickSongItemListener iOnClickSongItemListener) {
         super(diffCallback);
@@ -40,6 +40,16 @@ public class SongGridAdapter extends ListAdapter<Song, SongGridAdapter.SongGridV
         holder.mItemSongGridBinding.tvArtist.setText(song.getArtist());
 
         holder.mItemSongGridBinding.layoutItem.setOnClickListener(v -> iOnClickSongItemListener.onClickItemSong(song));
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull SongGridViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        holder.mItemSongGridBinding.layoutItem.setOnClickListener(null);
+    }
+
+    public void setCallback(IOnClickSongItemListener iOnClickSongItemListener) {
+        this.iOnClickSongItemListener = iOnClickSongItemListener;
     }
 
     public static class SongGridViewHolder extends RecyclerView.ViewHolder {

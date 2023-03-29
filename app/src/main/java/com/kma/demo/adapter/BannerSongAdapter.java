@@ -15,7 +15,7 @@ import com.kma.demo.utils.GlideUtils;
 
 public class BannerSongAdapter extends ListAdapter<Song, BannerSongAdapter.BannerSongViewHolder> {
 
-    public final IOnClickSongItemListener iOnClickSongItemListener;
+    public IOnClickSongItemListener iOnClickSongItemListener;
 
     public BannerSongAdapter(@NonNull DiffUtil.ItemCallback<Song> diffCallback, IOnClickSongItemListener iOnClickSongItemListener) {
         super(diffCallback);
@@ -37,6 +37,16 @@ public class BannerSongAdapter extends ListAdapter<Song, BannerSongAdapter.Banne
         }
         GlideUtils.loadUrlBanner(song.getImage(), holder.mItemBannerSongBinding.imageBanner);
         holder.mItemBannerSongBinding.layoutItem.setOnClickListener(v -> iOnClickSongItemListener.onClickItemSong(song));
+    }
+
+    public void setCallback(IOnClickSongItemListener iOnClickSongItemListener) {
+        this.iOnClickSongItemListener = iOnClickSongItemListener;
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull BannerSongViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        holder.mItemBannerSongBinding.layoutItem.setOnClickListener(null);
     }
 
     public static class BannerSongViewHolder extends RecyclerView.ViewHolder {

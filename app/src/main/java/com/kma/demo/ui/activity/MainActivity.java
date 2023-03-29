@@ -301,5 +301,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
+        mActivityMainBinding.header.imgLeft.setOnClickListener(null);
+        mActivityMainBinding.header.layoutPlayAll.setOnClickListener(null);
+
+        mActivityMainBinding.menuLeft.layoutClose.setOnClickListener(null);
+        mActivityMainBinding.menuLeft.tvMenuHome.setOnClickListener(null);
+        mActivityMainBinding.menuLeft.tvMenuAllSongs.setOnClickListener(null);
+        mActivityMainBinding.menuLeft.tvMenuFeaturedSongs.setOnClickListener(null);
+        mActivityMainBinding.menuLeft.tvMenuPopularSongs.setOnClickListener(null);
+        mActivityMainBinding.menuLeft.tvMenuNewSongs.setOnClickListener(null);
+        mActivityMainBinding.menuLeft.tvMenuLibrary.setOnClickListener(null);
+
+        mActivityMainBinding.layoutBottom.imgPrevious.setOnClickListener(null);
+        mActivityMainBinding.layoutBottom.imgPlay.setOnClickListener(null);
+        mActivityMainBinding.layoutBottom.imgNext.setOnClickListener(null);
+        mActivityMainBinding.layoutBottom.imgClose.setOnClickListener(null);
+        mActivityMainBinding.layoutBottom.layoutText.setOnClickListener(null);
+        mActivityMainBinding.layoutBottom.imgSong.setOnClickListener(null);
     }
 }

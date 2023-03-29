@@ -82,10 +82,11 @@ public class ListSongPlayingFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         if (getActivity() != null) {
             LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mBroadcastReceiver);
         }
+        mSongPlayingAdapter.setCallback(null);
     }
 }

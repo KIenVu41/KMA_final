@@ -49,9 +49,10 @@ import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class PopularSongsFragment extends Fragment implements SongController.SongCallbackListener {
+public class PopularSongsFragment extends Fragment {
 
     private FragmentPopularSongsBinding mFragmentPopularSongsBinding;
+    private MainActivity activity;
     private SongViewModel songViewModel;
     private List<Song> mListSong;
     private SongAdapter songAdapter;
@@ -169,7 +170,7 @@ public class PopularSongsFragment extends Fragment implements SongController.Son
     }
 
     private void initListener() {
-        MainActivity activity = (MainActivity) getActivity();
+        activity = (MainActivity) getActivity();
         if (activity == null || activity.getActivityMainBinding() == null) {
             return;
         }
@@ -183,27 +184,9 @@ public class PopularSongsFragment extends Fragment implements SongController.Son
     }
 
     @Override
-    public void onFetchProgress(int mode) {
-
-    }
-
-    @Override
-    public void onFetchComplete(List<Song> songs) {
-        mListSong = new ArrayList<>();
-        for (Song song : songs) {
-            if (song == null) {
-                return;
-            }
-            if (song.getCount() > 10) {
-                mListSong.add(song);
-            }
-        }
-        Collections.sort(mListSong, (song1, song2) -> song2.getCount() - song1.getCount());
-        songAdapter.submitList(mListSong);
-    }
-
-    @Override
-    public void onUpdateComplete(int count) {
-
+    public void onDestroyView() {
+        super.onDestroyView();
+        activity.getActivityMainBinding().header.layoutPlayAll.setOnClickListener(null);
+        songAdapter.setCallback(null);
     }
 }

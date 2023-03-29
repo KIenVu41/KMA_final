@@ -20,12 +20,13 @@ import java.util.List;
 
 public class SongAdapter extends ListAdapter<Song, RecyclerView.ViewHolder> {
 
-    public final IOnClickSongItemListener iOnClickSongItemListener;
-    public final IOnClickSongItemListener iOnClickSongItemDownloadListener;
+    public IOnClickSongItemListener iOnClickSongItemListener;
+    public IOnClickSongItemListener iOnClickSongItemDownloadListener;
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
     private OnEndlessScrollListener listener;
     private boolean isLoadingAdd = false;
+
     public SongAdapter(@NonNull DiffUtil.ItemCallback<Song> diffCallback, IOnClickSongItemListener iOnClickSongItemListener, IOnClickSongItemListener iOnClickSongItemDownloadListener) {
         super(diffCallback);
         this.iOnClickSongItemListener = iOnClickSongItemListener;
@@ -83,10 +84,10 @@ public class SongAdapter extends ListAdapter<Song, RecyclerView.ViewHolder> {
         }
     }
 
-//    @Override
-//    public int getItemCount() {
-//        return null == mListSongs ? 0 : mListSongs.size();
-//    }
+    public void setCallback(IOnClickSongItemListener iOnClickSongItemListener) {
+        this.iOnClickSongItemListener = iOnClickSongItemListener;
+        this.iOnClickSongItemDownloadListener = iOnClickSongItemListener;
+    }
 
     @Override
     public int getItemViewType(int position) {
@@ -109,6 +110,15 @@ public class SongAdapter extends ListAdapter<Song, RecyclerView.ViewHolder> {
             notifyItemRemoved(position);
         }
     }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        SongViewHolder songViewHolder = (SongViewHolder) holder;
+        songViewHolder.mItemSongBinding.layoutItem.setOnClickListener(null);
+        songViewHolder.mItemSongBinding.imgDownload.setOnClickListener(null);
+    }
+
 
     public static class SongViewHolder extends RecyclerView.ViewHolder {
 
