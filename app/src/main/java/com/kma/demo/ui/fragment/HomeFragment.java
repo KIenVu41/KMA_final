@@ -56,11 +56,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class HomeFragment extends Fragment implements SongController.SongCallbackListener {
 
     private FragmentHomeBinding mFragmentHomeBinding;
     private SongViewModel songViewModel;
-    private SongRepository songRepository;
     private List<Song> mListSong;
     private List<Song> mListNewSong;
     private List<Song> mListPopularSong;
@@ -99,8 +101,7 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
         displayListBannerSongs();
         displayListPopularSongs();
         displayListNewSongs();
-        songRepository = new SongRepository();
-        songViewModel = new ViewModelProvider(requireActivity(), new SongViewModelFactory(songRepository)).get(SongViewModel.class);
+        songViewModel = new ViewModelProvider(this).get(SongViewModel.class);
         songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
             @Override
             public void onChanged(List<Song> songs) {

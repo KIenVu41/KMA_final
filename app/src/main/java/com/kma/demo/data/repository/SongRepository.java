@@ -6,16 +6,11 @@ import com.kma.demo.data.network.RetrofitInstance;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import io.reactivex.Observable;
 
-public class SongRepository {
-    private ApiService apiService;
+public interface SongRepository {
 
-    public SongRepository() {
-        this.apiService = RetrofitInstance.getRetrofitInstance().create(ApiService.class);
-    }
-
-    public Observable<List<Song>> getAllSongs(String name) {
-        return apiService.getAllSongsRx(name);
-    }
+    public Observable<List<Song>> getAllSongs(String name);
 }

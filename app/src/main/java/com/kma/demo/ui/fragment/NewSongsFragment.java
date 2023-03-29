@@ -46,11 +46,13 @@ import com.kma.demo.worker.VideoPreloadWorker;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class NewSongsFragment extends Fragment implements SongController.SongCallbackListener {
 
     private FragmentNewSongsBinding mFragmentNewSongsBinding;
     private SongViewModel songViewModel;
-    private SongRepository songRepository;
     private List<Song> mListSong;
     private SongAdapter songAdapter;
     private SongController songController;
@@ -66,8 +68,7 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
 
         songDiffUtilCallBack = new SongDiffUtilCallBack();
         displayListNewSongs();
-        songRepository = new SongRepository();
-        songViewModel = new ViewModelProvider(requireActivity(), new SongViewModelFactory(songRepository)).get(SongViewModel.class);
+        songViewModel = new ViewModelProvider(this).get(SongViewModel.class);
         songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
             @Override
             public void onChanged(List<Song> songs) {

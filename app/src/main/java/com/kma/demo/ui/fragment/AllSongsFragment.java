@@ -47,11 +47,17 @@ import com.kma.demo.worker.VideoPreloadWorker;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class AllSongsFragment extends Fragment {
 
     private FragmentAllSongsBinding mFragmentAllSongsBinding;
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
     private SongViewModel songViewModel;
-    private SongRepository songRepository;
     private List<Song> mListSong;
     private List<Song> rowsArrayList = new ArrayList<>();
     private SongDiffUtilCallBack songDiffUtilCallBack;
@@ -65,14 +71,18 @@ public class AllSongsFragment extends Fragment {
     private int currentPage = 1;
     private int visibleItem = 0;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mFragmentAllSongsBinding = FragmentAllSongsBinding.inflate(inflater, container, false);
 
         songDiffUtilCallBack = new SongDiffUtilCallBack();
-        songRepository = new SongRepository();
-        songViewModel = new ViewModelProvider(requireActivity(), new SongViewModelFactory(songRepository)).get(SongViewModel.class);
+        songViewModel = new ViewModelProvider(this, viewModelFactory).get(SongViewModel.class);
         displayListAllSongs();
         songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
             @Override

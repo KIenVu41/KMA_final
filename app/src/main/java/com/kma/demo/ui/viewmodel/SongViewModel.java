@@ -9,15 +9,20 @@ import com.kma.demo.data.repository.SongRepository;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
+@HiltViewModel
 public class SongViewModel extends ViewModel {
     private final SongRepository songRepository;
     private MutableLiveData<List<Song>> mListSongLiveData = new MutableLiveData<>();
     private CompositeDisposable compositeDisposable = null;
 
+    @Inject
     public SongViewModel(SongRepository songRepository) {
         this.songRepository = songRepository;
         compositeDisposable = new CompositeDisposable();

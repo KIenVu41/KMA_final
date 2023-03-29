@@ -6,9 +6,14 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.kma.demo.data.repository.SongRepository;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class SongViewModelFactory implements ViewModelProvider.Factory {
     private final SongRepository songRepository;
 
+    @Inject
     public SongViewModelFactory(SongRepository songRepository) {
         this.songRepository = songRepository;
     }

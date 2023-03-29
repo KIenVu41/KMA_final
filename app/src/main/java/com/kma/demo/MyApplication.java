@@ -15,6 +15,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.kma.demo.constant.Constant;
 
+import dagger.hilt.android.HiltAndroidApp;
+
+@HiltAndroidApp
 public class MyApplication extends Application {
     public static final String CHANNEL_ID = "channel_music_basic_id";
     private static final String CHANNEL_NAME = "channel_music_basic_name";

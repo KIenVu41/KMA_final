@@ -28,7 +28,10 @@ import com.kma.demo.data.model.Song;
 import com.kma.demo.service.MusicService;
 import com.kma.demo.utils.GlideUtils;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 @SuppressLint("NonConstantResourceId")
+@AndroidEntryPoint
 public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     public static final int TYPE_HOME = 1;
