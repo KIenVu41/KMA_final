@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,10 +43,13 @@ import com.kma.demo.data.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
 import com.kma.demo.ui.viewmodel.SongViewModel;
 import com.kma.demo.ui.viewmodel.SongViewModelFactory;
+import com.kma.demo.utils.Resource;
 import com.kma.demo.worker.VideoPreloadWorker;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -59,18 +63,16 @@ public class AllSongsFragment extends Fragment {
     ViewModelProvider.Factory viewModelFactory;
     private SongViewModel songViewModel;
     private MainActivity activity;
-    private List<Song> mListSong;
-    private List<Song> rowsArrayList = new ArrayList<>();
+    private List<Song> mListSong = new ArrayList<>();
     private SongDiffUtilCallBack songDiffUtilCallBack;
     private SongAdapter songAdapter;
     private DownloadManager downloadManager;
     private long enqueue = 0;
     private BroadcastReceiver downloadReceiver = null;
+    private boolean isError = false;
     private boolean isLoading = false;
     private boolean isLastPage = false;
-    private int totalPage = 5;
-    private int currentPage = 1;
-    private int visibleItem = 0;
+    private boolean isScrolling = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,27 +87,44 @@ public class AllSongsFragment extends Fragment {
         songDiffUtilCallBack = new SongDiffUtilCallBack();
         songViewModel = new ViewModelProvider(this, viewModelFactory).get(SongViewModel.class);
         displayListAllSongs();
-        songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
+//        songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
+//            @Override
+//            public void onChanged(List<Song> songs) {
+//                mListSong = new ArrayList<>();
+//                for (Song song : songs) {
+//                    if (song == null) {
+//                        return;
+//                    }
+//                    mListSong.add(0, song);
+//                }
+//            }
+//        });
+        songViewModel.getResourceLiveData().observe(getActivity(), new Observer<Resource>() {
             @Override
-            public void onChanged(List<Song> songs) {
-                mListSong = new ArrayList<>();
-                for (Song song : songs) {
-                    if (song == null) {
-                        return;
-                    }
-                    mListSong.add(0, song);
-                }
-                int i = 0;
-                while (i < 20) {
-                    rowsArrayList.add(mListSong.get(i));
-                    i++;
-                }
-                songAdapter.submitList(rowsArrayList);
+            public void onChanged(Resource resource) {
+                switch (resource.status) {
+                    case SUCCESS:
+                        if(resource.data != null) {
+                            hideProgressBar();
+                            hideErrorMessage();
 
-                if (currentPage < totalPage) {
-                    songAdapter.addFooterLoading();
-                } else {
-                    isLastPage = true;
+                            mListSong.addAll((List<Song>) resource.data);
+                            songAdapter.submitList(mListSong);
+                            int totalPages = mListSong.size() / Constant.QUERY_PAGE_SIZE + 2;
+                            isLastPage = songViewModel.songPage == totalPages;
+                            if (isLastPage) {
+                                mFragmentAllSongsBinding.rcvData.setPadding(0, 0, 0, 0);
+                            }
+                        }
+                        break;
+                    case LOADING:
+                        showProgressBar();
+                        break;
+                    case ERROR:
+                        hideProgressBar();
+                        if(resource.message != null) {
+                            showErrorMessage(resource.message);
+                        }
                 }
             }
         });
@@ -136,7 +155,8 @@ public class AllSongsFragment extends Fragment {
         if (getActivity() == null) {
             return;
         }
-        songViewModel.getAllSongs("");
+        //songViewModel.getAllSongs("");
+        songViewModel.pagination();
     }
 
     private void displayListAllSongs() {
@@ -144,60 +164,67 @@ public class AllSongsFragment extends Fragment {
             return;
         }
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        visibleItem = linearLayoutManager.getItemCount();
         mFragmentAllSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
 
         songAdapter = new SongAdapter(songDiffUtilCallBack, this::goToSongDetail, this::downloadFile);
         mFragmentAllSongsBinding.rcvData.setAdapter(songAdapter);
         mFragmentAllSongsBinding.rcvData.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager layoutManager = (LinearLayoutManager) mFragmentAllSongsBinding.rcvData.getLayoutManager();
+                int firstVisibleItemPosition = Objects.requireNonNull(layoutManager).findFirstVisibleItemPosition();
+                int visibleItemCount = layoutManager.getChildCount();
+                int totalItemCount = layoutManager.getItemCount();
+
+                boolean isNoErrors = !isError;
+                boolean isNotLoadingAndNotLastPage = !isLoading && !isLastPage;
+                boolean isAtLastItem = firstVisibleItemPosition + visibleItemCount >= totalItemCount;
+                boolean isNotAtBeginning = firstVisibleItemPosition >= 0;
+                boolean isTotalMoreThanVisible = totalItemCount >= Constant.QUERY_PAGE_SIZE;
+                boolean shouldPaginate = isNoErrors && isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
+                        isTotalMoreThanVisible && isScrolling;
+                if(shouldPaginate) {
+                    songViewModel.pagination();
+                    isScrolling = false;
+                }
+
+            }
+
+            @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-            }
-        });
-//        mFragmentAllSongsBinding.rcvData.addOnScrollListener(new PaginationScrollListener(linearLayoutManager) {
-//            @Override
-//            protected void loadMoreItems() {
-//                isLoading = true;
-//                currentPage++;
-//                loadNextPage();
-//            }
-//
-//            @Override
-//            public boolean isLastPage() {
-//                return isLastPage;
-//            }
-//
-//            @Override
-//            public boolean isLoading() {
-//                return isLoading;
-//            }
-//        });
-    }
-
-    private void loadNextPage() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                songAdapter.removeFooterLoading();
-                rowsArrayList.addAll(getPageSong());
-                songAdapter.submitList(rowsArrayList);
-                isLoading = false;
-                if (currentPage < totalPage) {
-                    songAdapter.addFooterLoading();
-                } else {
-                    isLastPage = true;
+                if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                    isScrolling = true;
                 }
             }
-        }, 2000);
+        });
+
+        mFragmentAllSongsBinding.itemErrorMessage.btnRetry.setOnClickListener(view -> {
+            songViewModel.pagination();
+        });
     }
 
-    private List<Song> getPageSong() {
-        List<Song> pageSong = new ArrayList<>();
-        for (int i = 0; i < currentPage * 10; i++) {
-            pageSong.add(mListSong.get(i));
-        }
-        return pageSong;
+    private void hideProgressBar() {
+        mFragmentAllSongsBinding.paginationProgressBar.setVisibility(View.INVISIBLE);
+        isLoading = false;
+    }
+
+    private void showProgressBar() {
+        mFragmentAllSongsBinding.paginationProgressBar.setVisibility(View.VISIBLE);
+        isLoading = true;
+    }
+
+    private void hideErrorMessage() {
+        mFragmentAllSongsBinding.itemErrorMessage.cvItemError.setVisibility(View.INVISIBLE);
+        isError = false;
+    }
+
+    private void showErrorMessage(String message) {
+        mFragmentAllSongsBinding.itemErrorMessage.cvItemError.setVisibility(View.VISIBLE);
+        mFragmentAllSongsBinding.itemErrorMessage.tvErrorMessage.setText(message);
+        isError = true;
     }
 
     private void goToSongDetail(@NonNull Song song) {

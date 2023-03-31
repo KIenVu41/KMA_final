@@ -1,5 +1,7 @@
 package com.kma.demo.di.module;
 
+import android.app.Application;
+
 import androidx.lifecycle.ViewModelProvider;
 
 import com.kma.demo.data.network.ApiService;
@@ -16,6 +18,7 @@ import dagger.hilt.InstallIn;
 import dagger.hilt.android.components.ActivityComponent;
 import dagger.hilt.android.components.ViewModelComponent;
 import dagger.hilt.components.SingletonComponent;
+import hilt_aggregated_deps._com_kma_demo_di_module_NetworkModule;
 
 @Module
 @InstallIn(SingletonComponent.class)
@@ -27,7 +30,7 @@ public class ViewModelModule {
     }
 
     @Provides
-    public ViewModelProvider.Factory provideSongViewModel(SongRepository repository) {
-        return new SongViewModelFactory(repository);
+    public ViewModelProvider.Factory provideSongViewModel(SongRepository repository, Application application) {
+        return new SongViewModelFactory(repository, application);
     }
 }

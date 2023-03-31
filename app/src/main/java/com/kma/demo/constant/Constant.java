@@ -25,4 +25,5 @@ public class Constant {
     public static final String CHANGE_LISTENER = "change_listener";
     public static final String LIBRARY_ACTION = "libraryAction";
     public static Boolean IS_LIBRARY = false;
+    public static final int QUERY_PAGE_SIZE = 20;
 }

@@ -18,14 +18,10 @@ import com.kma.demo.utils.GlideUtils;
 
 import java.util.List;
 
-public class SongAdapter extends ListAdapter<Song, RecyclerView.ViewHolder> {
+public class SongAdapter extends ListAdapter<Song, SongAdapter.SongViewHolder> {
 
     public IOnClickSongItemListener iOnClickSongItemListener;
     public IOnClickSongItemListener iOnClickSongItemDownloadListener;
-    private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 1;
-    private OnEndlessScrollListener listener;
-    private boolean isLoadingAdd = false;
 
     public SongAdapter(@NonNull DiffUtil.ItemCallback<Song> diffCallback, IOnClickSongItemListener iOnClickSongItemListener, IOnClickSongItemListener iOnClickSongItemDownloadListener) {
         super(diffCallback);
@@ -33,55 +29,33 @@ public class SongAdapter extends ListAdapter<Song, RecyclerView.ViewHolder> {
         this.iOnClickSongItemDownloadListener = iOnClickSongItemDownloadListener;
     }
 
-    public void setListener(OnEndlessScrollListener listener) {
-        this.listener = listener;
-    }
-
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        RecyclerView.ViewHolder viewHolder = null;
-        switch (viewType) {
-            case VIEW_TYPE_ITEM:
-                ItemSongBinding itemSongBinding = ItemSongBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-                viewHolder = new SongViewHolder(itemSongBinding);
-                break;
-            case VIEW_TYPE_LOADING:
-                ItemProgressBinding itemProgressBinding = ItemProgressBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-                viewHolder = new LoadingViewHolder(itemProgressBinding);
-                break;
-        }
-        return viewHolder;
+    public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new SongViewHolder(ItemSongBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
         Song song = getItem(position);
-//        if (song == null) {
-//            return;
-//        }
-        switch (getItemViewType(position)) {
-            case VIEW_TYPE_ITEM:
-                SongViewHolder songViewHolder = (SongViewHolder) holder;
-                if(iOnClickSongItemDownloadListener == null) {
-                    songViewHolder.mItemSongBinding.imgDownload.setVisibility(View.GONE);
-                }
+        if (song == null) {
+            return;
+        }
 
-                GlideUtils.loadUrl(song.getImage(), songViewHolder.mItemSongBinding.imgSong);
-                songViewHolder.mItemSongBinding.tvSongName.setText(song.getTitle());
-                songViewHolder.mItemSongBinding.tvArtist.setText(song.getArtist());
-                songViewHolder.mItemSongBinding.tvCountView.setText(String.valueOf(song.getCount()));
+        if(iOnClickSongItemDownloadListener == null) {
+            holder.mItemSongBinding.imgDownload.setVisibility(View.GONE);
+        }
 
-                songViewHolder.mItemSongBinding.layoutItem.setOnClickListener(v -> iOnClickSongItemListener.onClickItemSong(song));
-                songViewHolder.mItemSongBinding.imgDownload.setOnClickListener(v -> {
+        GlideUtils.loadUrl(song.getImage(), holder.mItemSongBinding.imgSong);
+        holder.mItemSongBinding.tvSongName.setText(song.getTitle());
+        holder.mItemSongBinding.tvArtist.setText(song.getArtist());
+        holder.mItemSongBinding.tvCountView.setText(String.valueOf(song.getCount()));
+
+        holder.mItemSongBinding.layoutItem.setOnClickListener(v -> iOnClickSongItemListener.onClickItemSong(song));
+        holder.mItemSongBinding.imgDownload.setOnClickListener(v -> {
                     iOnClickSongItemDownloadListener.onClickItemSong(song);
                 });
-                break;
-            case VIEW_TYPE_LOADING:
-                LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
-                loadingViewHolder.ItemProgressBinding.loadmoreProgress.setVisibility(View.VISIBLE);
-                break;
-        }
+
     }
 
     public void setCallback(IOnClickSongItemListener iOnClickSongItemListener) {
@@ -90,33 +64,10 @@ public class SongAdapter extends ListAdapter<Song, RecyclerView.ViewHolder> {
     }
 
     @Override
-    public int getItemViewType(int position) {
-        if(position == getCurrentList().size() - 1 && isLoadingAdd) {
-            return VIEW_TYPE_LOADING;
-        }
-        return VIEW_TYPE_ITEM;
-    }
-
-    public void addFooterLoading() {
-        isLoadingAdd = true;
-    }
-
-    public void removeFooterLoading() {
-        isLoadingAdd = false;
-        int position = getCurrentList().size() - 1;
-        Song song = getItem(position);
-        if(song != null) {
-            getCurrentList().remove(position);
-            notifyItemRemoved(position);
-        }
-    }
-
-    @Override
-    public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder) {
+    public void onViewDetachedFromWindow(@NonNull SongViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
-        SongViewHolder songViewHolder = (SongViewHolder) holder;
-        songViewHolder.mItemSongBinding.layoutItem.setOnClickListener(null);
-        songViewHolder.mItemSongBinding.imgDownload.setOnClickListener(null);
+        holder.mItemSongBinding.layoutItem.setOnClickListener(null);
+        holder.mItemSongBinding.imgDownload.setOnClickListener(null);
     }
 
 
@@ -127,16 +78,6 @@ public class SongAdapter extends ListAdapter<Song, RecyclerView.ViewHolder> {
         public SongViewHolder(ItemSongBinding itemSongBinding) {
             super(itemSongBinding.getRoot());
             this.mItemSongBinding = itemSongBinding;
-        }
-    }
-
-    public static class LoadingViewHolder extends RecyclerView.ViewHolder {
-
-        private final ItemProgressBinding ItemProgressBinding;
-
-        public LoadingViewHolder(ItemProgressBinding ItemProgressBinding) {
-            super(ItemProgressBinding.getRoot());
-            this.ItemProgressBinding = ItemProgressBinding;
         }
     }
 }

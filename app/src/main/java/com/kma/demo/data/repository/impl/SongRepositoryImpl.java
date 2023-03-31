@@ -6,6 +6,7 @@ import com.kma.demo.constant.Constant;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.data.network.ApiService;
 import com.kma.demo.data.repository.SongRepository;
+import com.kma.demo.utils.Resource;
 import com.kma.demo.utils.StorageUtil;
 
 import java.io.File;
@@ -15,6 +16,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 public class SongRepositoryImpl implements SongRepository {
 
@@ -49,5 +51,10 @@ public class SongRepositoryImpl implements SongRepository {
             }
         }
         return Observable.fromArray(mListSong);
+    }
+
+    @Override
+    public Observable<List<Song>> pagination(int page) {
+        return apiService.pagination(page);
     }
 }
