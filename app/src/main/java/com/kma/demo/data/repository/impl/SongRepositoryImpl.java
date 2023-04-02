@@ -57,4 +57,9 @@ public class SongRepositoryImpl implements SongRepository {
     public Observable<List<Song>> pagination(int page) {
         return apiService.pagination(page);
     }
+
+    @Override
+    public Observable<List<Song>> getHomeData() {
+        return apiService.getHomeData();
+    }
 }

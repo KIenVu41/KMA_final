@@ -105,7 +105,7 @@ public class HomeFragment extends Fragment {
         displayListPopularSongs();
         displayListNewSongs();
         songViewModel = new ViewModelProvider(this, viewModelFactory).get(SongViewModel.class);
-        songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
+        songViewModel.getmListHomeLiveData().observe(getActivity(), new Observer<List<Song>>() {
             @Override
             public void onChanged(List<Song> songs) {
                 mFragmentHomeBinding.layoutContent.setVisibility(View.VISIBLE);
@@ -175,15 +175,15 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        mFragmentHomeBinding.imgSearch.setOnClickListener(view -> searchSong());
-
-        mFragmentHomeBinding.edtSearchName.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                searchSong();
-                return true;
-            }
-            return false;
-        });
+//        mFragmentHomeBinding.imgSearch.setOnClickListener(view -> searchSong());
+//
+//        mFragmentHomeBinding.edtSearchName.setOnEditorActionListener((v, actionId, event) -> {
+//            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+//                searchSong();
+//                return true;
+//            }
+//            return false;
+//        });
 
         mFragmentHomeBinding.layoutViewAllPopular.setOnClickListener(v -> {
             MainActivity mainActivity = (MainActivity) getActivity();
@@ -204,7 +204,7 @@ public class HomeFragment extends Fragment {
         if (getActivity() == null) {
             return;
         }
-        songViewModel.getAllSongs("");
+        songViewModel.getHomeData();
     }
 
     private void displayListBannerSongs() {
@@ -305,7 +305,8 @@ public class HomeFragment extends Fragment {
 
     private void searchSong() {
         strKey = mFragmentHomeBinding.edtSearchName.getText().toString().trim();
-        if (mListSong != null) mListSong.clear();
+        if (mListSong != null)
+            mListSong.clear();
         getListSongFromServer(strKey);
         GlobalFuntion.hideSoftKeyboard(getActivity());
     }

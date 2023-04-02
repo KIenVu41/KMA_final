@@ -32,6 +32,7 @@ public class SongViewModel extends AndroidViewModel {
     private MutableLiveData<Resource> mSongLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Song>> mListLocalSongLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Song>> mListSearchSongLiveData = new MutableLiveData<>();
+    private MutableLiveData<List<Song>> mListHomeLiveData = new MutableLiveData<>();
     private CompositeDisposable compositeDisposable = null;
     private Application application;
     public int songPage = 1;
@@ -55,6 +56,13 @@ public class SongViewModel extends AndroidViewModel {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(list -> mListSongLiveData.postValue(list), throwable -> {}));
+    }
+
+    public void getHomeData() {
+        compositeDisposable.add(songRepository.getHomeData()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(list -> mListHomeLiveData.postValue(list), throwable -> {}));
     }
 
     public void pagination() {
@@ -97,6 +105,10 @@ public class SongViewModel extends AndroidViewModel {
 
     public LiveData<List<Song>> getmListLocalSongLiveData() {
         return mListLocalSongLiveData;
+    }
+
+    public LiveData<List<Song>> getmListHomeLiveData() {
+        return mListHomeLiveData;
     }
 
     @Override

@@ -21,4 +21,6 @@ public interface SongRepository {
     public Observable<List<Song>> fetchSongFromLocal(Context context);
 
     public Observable<List<Song>> pagination(int page);
+
+    public Observable<List<Song>> getHomeData();
 }

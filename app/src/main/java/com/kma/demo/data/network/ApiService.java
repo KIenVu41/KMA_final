@@ -12,11 +12,15 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 public interface ApiService {
+
     @GET("songs")
     Observable<List<Song>> getAllSongsRx(@Query("name") String name);
 
     @GET("pagination/songs")
     Observable<List<Song>> pagination(@Query("page") int page);
+
+    @GET("home")
+    Observable<List<Song>> getHomeData();
 
     @GET("songs")
     Call<List<Song>> getAllSongs(@Query("name") String name);
