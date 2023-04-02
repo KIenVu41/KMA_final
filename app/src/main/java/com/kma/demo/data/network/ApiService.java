@@ -19,6 +19,15 @@ public interface ApiService {
     @GET("pagination/songs")
     Observable<List<Song>> pagination(@Query("page") int page);
 
+    @GET("pagination/featured")
+    Observable<List<Song>> featuredPagination(@Query("page") int page);
+
+    @GET("pagination/latest")
+    Observable<List<Song>> latestPagination(@Query("page") int page);
+
+    @GET("pagination/popular")
+    Observable<List<Song>> popularPagination(@Query("page") int page);
+
     @GET("home")
     Observable<List<Song>> getHomeData();
 

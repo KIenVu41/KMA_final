@@ -87,18 +87,7 @@ public class AllSongsFragment extends Fragment {
         songDiffUtilCallBack = new SongDiffUtilCallBack();
         songViewModel = new ViewModelProvider(this, viewModelFactory).get(SongViewModel.class);
         displayListAllSongs();
-//        songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
-//            @Override
-//            public void onChanged(List<Song> songs) {
-//                mListSong = new ArrayList<>();
-//                for (Song song : songs) {
-//                    if (song == null) {
-//                        return;
-//                    }
-//                    mListSong.add(0, song);
-//                }
-//            }
-//        });
+
         songViewModel.getResourceLiveData().observe(getActivity(), new Observer<Resource>() {
             @Override
             public void onChanged(Resource resource) {
@@ -231,7 +220,7 @@ public class AllSongsFragment extends Fragment {
         MusicService.clearListSongPlaying();
         MusicService.mListSongPlaying.add(song);
         MusicService.isPlaying = false;
-        //schedulePreloadWork(song.getUrl());
+        schedulePreloadWork(song.getUrl());
         //GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
         //GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
         startActivity(new Intent(getActivity(), PlayMusicActivity.class).putExtra("AUDIO_URL", song.getUrl()));

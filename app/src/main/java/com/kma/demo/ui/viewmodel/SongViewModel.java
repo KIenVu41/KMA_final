@@ -30,12 +30,17 @@ public class SongViewModel extends AndroidViewModel {
     private final SongRepository songRepository;
     private MutableLiveData<List<Song>> mListSongLiveData = new MutableLiveData<>();
     private MutableLiveData<Resource> mSongLiveData = new MutableLiveData<>();
+    private MutableLiveData<Resource> mFeaturedLiveData = new MutableLiveData<>();
+    private MutableLiveData<Resource> mPopularLiveData = new MutableLiveData<>();
+    private MutableLiveData<Resource> mLatestLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Song>> mListLocalSongLiveData = new MutableLiveData<>();
-    private MutableLiveData<List<Song>> mListSearchSongLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Song>> mListHomeLiveData = new MutableLiveData<>();
     private CompositeDisposable compositeDisposable = null;
     private Application application;
     public int songPage = 1;
+    public int featuredPage = 1;
+    public int popularPage = 1;
+    public int latestPage = 1;
 
 //    @Inject
 //    public SongViewModel(SongRepository songRepository) {
@@ -79,9 +84,66 @@ public class SongViewModel extends AndroidViewModel {
         }
     }
 
+    public void featuredPagination() {
+        mFeaturedLiveData.postValue(Resource.loading(null));
+        if(hasInternetConnection()) {
+            compositeDisposable.add(songRepository.featuredPagination(featuredPage)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::handleFeaturedResponse, throwable -> {
+                        mFeaturedLiveData.postValue(Resource.error(throwable.getMessage(), null));
+                    }));
+        } else {
+            mFeaturedLiveData.postValue(Resource.error("No internet connection",null));
+        }
+    }
+
+    public void popularPagination() {
+        mPopularLiveData.postValue(Resource.loading(null));
+        if(hasInternetConnection()) {
+            compositeDisposable.add(songRepository.popularPagination(popularPage)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::handlePopularResponse, throwable -> {
+                        mPopularLiveData.postValue(Resource.error(throwable.getMessage(), null));
+                    }));
+        } else {
+            mPopularLiveData.postValue(Resource.error("No internet connection",null));
+        }
+    }
+
+    public void latestPagination() {
+        mLatestLiveData.postValue(Resource.loading(null));
+        if(hasInternetConnection()) {
+            compositeDisposable.add(songRepository.latestPagination(latestPage)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::handleLatestResponse, throwable -> {
+                        mLatestLiveData.postValue(Resource.error(throwable.getMessage(), null));
+                    }));
+        } else {
+            mLatestLiveData.postValue(Resource.error("No internet connection",null));
+        }
+    }
+
     public void handleResponse(List<Song> songList) {
         songPage++;
         mSongLiveData.postValue(Resource.success(songList));
+    }
+
+    public void handleFeaturedResponse(List<Song> songList) {
+        featuredPage++;
+        mFeaturedLiveData.postValue(Resource.success(songList));
+    }
+
+    public void handlePopularResponse(List<Song> songList) {
+        popularPage++;
+        mPopularLiveData.postValue(Resource.success(songList));
+    }
+
+    public void handleLatestResponse(List<Song> songList) {
+        latestPage++;
+        mLatestLiveData.postValue(Resource.success(songList));
     }
 
     public void fetchSongFromLocal(Context context) {
@@ -103,12 +165,24 @@ public class SongViewModel extends AndroidViewModel {
         return mSongLiveData;
     }
 
+    public LiveData<Resource> getPopularLiveData() {
+        return mPopularLiveData;
+    }
+
+    public LiveData<Resource> getLatestLiveData() {
+        return mLatestLiveData;
+    }
+
     public LiveData<List<Song>> getmListLocalSongLiveData() {
         return mListLocalSongLiveData;
     }
 
     public LiveData<List<Song>> getmListHomeLiveData() {
         return mListHomeLiveData;
+    }
+
+    public LiveData<Resource> getmFeaturedLiveData() {
+        return mFeaturedLiveData;
     }
 
     @Override

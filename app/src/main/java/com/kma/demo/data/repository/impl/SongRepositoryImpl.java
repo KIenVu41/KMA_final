@@ -59,6 +59,21 @@ public class SongRepositoryImpl implements SongRepository {
     }
 
     @Override
+    public Observable<List<Song>> featuredPagination(int page) {
+        return apiService.featuredPagination(page);
+    }
+
+    @Override
+    public Observable<List<Song>> popularPagination(int page) {
+        return apiService.popularPagination(page);
+    }
+
+    @Override
+    public Observable<List<Song>> latestPagination(int page) {
+        return apiService.latestPagination(page);
+    }
+
+    @Override
     public Observable<List<Song>> getHomeData() {
         return apiService.getHomeData();
     }

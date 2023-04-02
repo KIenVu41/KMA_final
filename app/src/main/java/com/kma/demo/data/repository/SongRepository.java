@@ -22,5 +22,11 @@ public interface SongRepository {
 
     public Observable<List<Song>> pagination(int page);
 
+    public Observable<List<Song>> featuredPagination(int page);
+
+    public Observable<List<Song>> popularPagination(int page);
+
+    public Observable<List<Song>> latestPagination(int page);
+
     public Observable<List<Song>> getHomeData();
 }

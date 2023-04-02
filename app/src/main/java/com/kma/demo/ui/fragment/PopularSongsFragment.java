@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -40,11 +42,13 @@ import com.kma.demo.data.model.SongDiffUtilCallBack;
 import com.kma.demo.service.MusicService;
 import com.kma.demo.ui.viewmodel.SongViewModel;
 import com.kma.demo.ui.viewmodel.SongViewModelFactory;
+import com.kma.demo.utils.Resource;
 import com.kma.demo.worker.VideoPreloadWorker;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -58,13 +62,17 @@ public class PopularSongsFragment extends Fragment {
     ViewModelProvider.Factory viewModelFactory;
     private MainActivity activity;
     private SongViewModel songViewModel;
-    private List<Song> mListSong;
+    private List<Song> mListSong = new ArrayList<>();
     private SongAdapter songAdapter;
     private SongController songController;
     private SongDiffUtilCallBack songDiffUtilCallBack;
     private DownloadManager downloadManager;
     private long enqueue = 0;
     private BroadcastReceiver downloadReceiver = null;
+    private boolean isError = false;
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+    private boolean isScrolling = false;
 
     @Nullable
     @Override
@@ -74,20 +82,34 @@ public class PopularSongsFragment extends Fragment {
         songDiffUtilCallBack = new SongDiffUtilCallBack();
         displayListPopularSongs();
         songViewModel = new ViewModelProvider(this, viewModelFactory).get(SongViewModel.class);
-        songViewModel.getmListSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
+
+        songViewModel.getPopularLiveData().observe(getActivity(), new Observer<Resource>() {
             @Override
-            public void onChanged(List<Song> songs) {
-                mListSong = new ArrayList<>();
-                for (Song song : songs) {
-                    if (song == null) {
-                        return;
-                    }
-                    if (song.getCount() > 10) {
-                        mListSong.add(song);
-                    }
+            public void onChanged(Resource resource) {
+                switch (resource.status) {
+                    case SUCCESS:
+                        if(resource.data != null) {
+                            hideProgressBar();
+                            hideErrorMessage();
+
+                            mListSong.addAll((List<Song>) resource.data);
+                            songAdapter.submitList(mListSong);
+                            int totalPages = mListSong.size() / Constant.QUERY_PAGE_SIZE + 2;
+                            isLastPage = songViewModel.popularPage == totalPages;
+                            if (isLastPage) {
+                                mFragmentPopularSongsBinding.rcvData.setPadding(0, 0, 0, 0);
+                            }
+                        }
+                        break;
+                    case LOADING:
+                        showProgressBar();
+                        break;
+                    case ERROR:
+                        hideProgressBar();
+                        if(resource.message != null) {
+                            showErrorMessage(resource.message);
+                        }
                 }
-                Collections.sort(mListSong, (song1, song2) -> song2.getCount() - song1.getCount());
-                songAdapter.submitList(mListSong);
             }
         });
 
@@ -114,11 +136,32 @@ public class PopularSongsFragment extends Fragment {
         return mFragmentPopularSongsBinding.getRoot();
     }
 
+    private void hideProgressBar() {
+        mFragmentPopularSongsBinding.paginationProgressBar.setVisibility(View.INVISIBLE);
+        isLoading = false;
+    }
+
+    private void showProgressBar() {
+        mFragmentPopularSongsBinding.paginationProgressBar.setVisibility(View.VISIBLE);
+        isLoading = true;
+    }
+
+    private void hideErrorMessage() {
+        mFragmentPopularSongsBinding.itemErrorMessage.cvItemError.setVisibility(View.INVISIBLE);
+        isError = false;
+    }
+
+    private void showErrorMessage(String message) {
+        mFragmentPopularSongsBinding.itemErrorMessage.cvItemError.setVisibility(View.VISIBLE);
+        mFragmentPopularSongsBinding.itemErrorMessage.tvErrorMessage.setText(message);
+        isError = true;
+    }
+
     private void getListPopularSongs() {
         if (getActivity() == null) {
             return;
         }
-        songViewModel.getAllSongs("");
+        songViewModel.popularPagination();
     }
 
     private void displayListPopularSongs() {
@@ -130,6 +173,42 @@ public class PopularSongsFragment extends Fragment {
 
         songAdapter = new SongAdapter(songDiffUtilCallBack, this::goToSongDetail, this::downloadFile);
         mFragmentPopularSongsBinding.rcvData.setAdapter(songAdapter);
+        mFragmentPopularSongsBinding.rcvData.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager layoutManager = (LinearLayoutManager) mFragmentPopularSongsBinding.rcvData.getLayoutManager();
+                int firstVisibleItemPosition = Objects.requireNonNull(layoutManager).findFirstVisibleItemPosition();
+                int visibleItemCount = layoutManager.getChildCount();
+                int totalItemCount = layoutManager.getItemCount();
+
+                boolean isNoErrors = !isError;
+                boolean isNotLoadingAndNotLastPage = !isLoading && !isLastPage;
+                boolean isAtLastItem = firstVisibleItemPosition + visibleItemCount >= totalItemCount;
+                boolean isNotAtBeginning = firstVisibleItemPosition >= 0;
+                boolean isTotalMoreThanVisible = totalItemCount >= Constant.QUERY_PAGE_SIZE;
+                boolean shouldPaginate = isNoErrors && isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
+                        isTotalMoreThanVisible && isScrolling;
+                if(shouldPaginate) {
+                    songViewModel.popularPagination();
+                    isScrolling = false;
+                }
+
+            }
+
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if(newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                    isScrolling = true;
+                }
+            }
+        });
+
+        mFragmentPopularSongsBinding.itemErrorMessage.btnRetry.setOnClickListener(view -> {
+            songViewModel.popularPagination();
+        });
     }
 
     private void goToSongDetail(@NonNull Song song) {
