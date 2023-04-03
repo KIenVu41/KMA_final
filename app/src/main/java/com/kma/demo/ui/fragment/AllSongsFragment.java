@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,8 +45,10 @@ import com.kma.demo.service.MusicService;
 import com.kma.demo.ui.viewmodel.SongViewModel;
 import com.kma.demo.ui.viewmodel.SongViewModelFactory;
 import com.kma.demo.utils.Resource;
+import com.kma.demo.utils.StorageUtil;
 import com.kma.demo.worker.VideoPreloadWorker;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,6 +76,8 @@ public class AllSongsFragment extends Fragment {
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private boolean isScrolling = false;
+    private boolean isDownloading = false;
+    private String songName = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,6 +115,31 @@ public class AllSongsFragment extends Fragment {
                         showProgressBar();
                         break;
                     case ERROR:
+                        hideProgressBar();
+                        if(resource.message != null) {
+                            showErrorMessage(resource.message);
+                        }
+                }
+            }
+        });
+        songViewModel.getDownloadLiveData().observe(getActivity(), new Observer<Resource>() {
+            @Override
+            public void onChanged(Resource resource) {
+                switch (resource.status) {
+                    case SUCCESS:
+                        if(resource.data != null) {
+                            StorageUtil.decompressAndSave((InputStream) resource.data, songName + ".mp3");
+                            hideErrorMessage();
+                            hideProgressBar();
+                        }
+                        isDownloading = false;
+                        break;
+                    case LOADING:
+                        isDownloading = true;
+                        showProgressBar();
+                        break;
+                    case ERROR:
+                        isDownloading = false;
                         hideProgressBar();
                         if(resource.message != null) {
                             showErrorMessage(resource.message);
@@ -227,20 +257,25 @@ public class AllSongsFragment extends Fragment {
     }
 
     private void downloadFile(@NonNull Song song) {
-        downloadManager = (DownloadManager) requireActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(song.getUrl()));
-
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI)
-                .setTitle(song.getTitle() + ".mp3")
-                .setDescription(song.getTitle() + "-" + song.getArtist())
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, song.getTitle() + ".mp3")
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-
-        enqueue = downloadManager.enqueue(request);
-
-        Intent i = new Intent();
-        i.setAction(DownloadManager.ACTION_VIEW_DOWNLOADS);
-        startActivity(i);
+        if(isDownloading) {
+            return;
+        }
+        songName = song.getTitle();
+        songViewModel.download(song.getUrl());
+//        downloadManager = (DownloadManager) requireActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+//        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(song.getUrl()));
+//
+//        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI)
+//                .setTitle(song.getTitle() + ".mp3")
+//                .setDescription(song.getTitle() + "-" + song.getArtist())
+//                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, song.getTitle() + ".mp3")
+//                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+//
+//        enqueue = downloadManager.enqueue(request);
+//
+//        Intent i = new Intent();
+//        i.setAction(DownloadManager.ACTION_VIEW_DOWNLOADS);
+//        startActivity(i);
     }
 
     private void initListener() {

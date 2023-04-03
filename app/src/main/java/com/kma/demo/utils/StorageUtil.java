@@ -10,7 +10,12 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 
 public class StorageUtil {
 
@@ -49,5 +54,53 @@ public class StorageUtil {
 
         return extension;
 
+    }
+
+    public static void decompressAndSave(InputStream compressedData, String fileName) {
+        InputStream inputStream = compressedData;
+        GZIPInputStream gzipInputStream = null;
+        FileOutputStream fileOutputStream = null;
+        File downloadFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File myFile = new File(downloadFolder, fileName);
+        try {
+            // Giải nén byte[] thành file mp3
+            gzipInputStream = new GZIPInputStream(inputStream);
+            fileOutputStream = new FileOutputStream(myFile);
+
+            byte[] buffer = new byte[4096];
+            int len;
+            while ((len = gzipInputStream.read(buffer)) > 0) {
+                fileOutputStream.write(buffer, 0, len);
+            }
+
+            // Đóng các stream
+            fileOutputStream.close();
+            gzipInputStream.close();
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(gzipInputStream != null) {
+                try {
+                    gzipInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(fileOutputStream != null) {
+                try {
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

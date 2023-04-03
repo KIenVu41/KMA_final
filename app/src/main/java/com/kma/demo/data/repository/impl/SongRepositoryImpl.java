@@ -17,6 +17,7 @@ import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import okhttp3.ResponseBody;
 
 public class SongRepositoryImpl implements SongRepository {
 
@@ -71,6 +72,11 @@ public class SongRepositoryImpl implements SongRepository {
     @Override
     public Observable<List<Song>> latestPagination(int page) {
         return apiService.latestPagination(page);
+    }
+
+    @Override
+    public Observable<ResponseBody> download(String url) {
+        return apiService.download(url);
     }
 
     @Override

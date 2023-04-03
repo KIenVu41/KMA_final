@@ -13,6 +13,7 @@ import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import okhttp3.ResponseBody;
 
 public interface SongRepository {
 
@@ -27,6 +28,8 @@ public interface SongRepository {
     public Observable<List<Song>> popularPagination(int page);
 
     public Observable<List<Song>> latestPagination(int page);
+
+    public Observable<ResponseBody> download(String url);
 
     public Observable<List<Song>> getHomeData();
 }

@@ -7,9 +7,11 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
+import retrofit2.http.Streaming;
 
 public interface ApiService {
 
@@ -30,6 +32,10 @@ public interface ApiService {
 
     @GET("home")
     Observable<List<Song>> getHomeData();
+
+    @Streaming
+    @GET("download")
+    Observable<ResponseBody> download(@Query("url") String url);
 
     @GET("songs")
     Call<List<Song>> getAllSongs(@Query("name") String name);

@@ -63,7 +63,6 @@ public class NewSongsFragment extends Fragment {
     private SongViewModel songViewModel;
     private List<Song> mListSong = new ArrayList<>();
     private SongAdapter songAdapter;
-    private SongController songController;
     private SongDiffUtilCallBack songDiffUtilCallBack;
     private DownloadManager downloadManager;
     private long enqueue = 0;
