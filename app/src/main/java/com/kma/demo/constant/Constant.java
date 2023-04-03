@@ -26,4 +26,6 @@ public class Constant {
     public static final String LIBRARY_ACTION = "libraryAction";
     public static Boolean IS_LIBRARY = false;
     public static final int QUERY_PAGE_SIZE = 20;
+    public static boolean isDownloading = false;
+    public static String songDownloadName = "";
 }
