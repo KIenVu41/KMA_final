@@ -35,7 +35,7 @@ public interface ApiService {
 
     @Streaming
     @GET("download")
-    Observable<ResponseBody> download(@Query("url") String url);
+    Observable<ResponseBody> download(@Query("url") String url, @Query("name") String name);
 
     @GET("songs")
     Call<List<Song>> getAllSongs(@Query("name") String name);

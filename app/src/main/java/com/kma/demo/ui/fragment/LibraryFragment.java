@@ -91,7 +91,7 @@ public class LibraryFragment extends Fragment {
         MusicService.isPlaying = false;
 //        GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
 //        GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
-        startActivity(new Intent(getActivity(), PlayMusicActivity.class).putExtra("AUDIO_URL", song.getUrl()));
+        startActivity(new Intent(getActivity(), PlayMusicActivity.class).putExtra("IS_LIBRARY", true));
     }
 
     private void initListener() {

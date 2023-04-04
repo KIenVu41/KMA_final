@@ -73,10 +73,10 @@ public class SongViewModel extends AndroidViewModel {
                 .subscribe(list -> mListHomeLiveData.postValue(list), throwable -> {}));
     }
 
-    public void download(String url) {
+    public void download(String url, String name) {
         mDownloadLiveData.postValue(Resource.loading(null));
         if(hasInternetConnection()) {
-            compositeDisposable.add(songRepository.download(url)
+            compositeDisposable.add(songRepository.download(url, name)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(this::handleDownloadResponse, throwable -> {

@@ -11,12 +11,18 @@ import com.kma.demo.databinding.ActivityPlayMusicBinding;
 public class PlayMusicActivity extends BaseActivity {
 
     private ActivityPlayMusicBinding mActivityPlayMusicBinding;
+    public static boolean isLibrary = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivityPlayMusicBinding = ActivityPlayMusicBinding.inflate(getLayoutInflater());
         setContentView(mActivityPlayMusicBinding.getRoot());
+
+        Bundle bundle = getIntent().getExtras();
+        if(bundle != null) {
+            isLibrary = bundle.getBoolean("IS_LIBRARY");
+        }
 
         initToolbar();
         initUI();

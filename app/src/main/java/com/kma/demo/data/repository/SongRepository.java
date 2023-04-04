@@ -29,7 +29,7 @@ public interface SongRepository {
 
     public Observable<List<Song>> latestPagination(int page);
 
-    public Observable<ResponseBody> download(String url);
+    public Observable<ResponseBody> download(String url, String name);
 
     public Observable<List<Song>> getHomeData();
 }

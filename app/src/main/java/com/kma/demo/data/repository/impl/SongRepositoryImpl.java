@@ -75,8 +75,8 @@ public class SongRepositoryImpl implements SongRepository {
     }
 
     @Override
-    public Observable<ResponseBody> download(String url) {
-        return apiService.download(url);
+    public Observable<ResponseBody> download(String url, String name) {
+        return apiService.download(url, name);
     }
 
     @Override

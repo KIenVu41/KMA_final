@@ -63,20 +63,26 @@ public class StorageUtil {
         File downloadFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         File myFile = new File(downloadFolder, fileName);
         try {
-            // Giải nén byte[] thành file mp3
-            gzipInputStream = new GZIPInputStream(inputStream);
             fileOutputStream = new FileOutputStream(myFile);
-
-            byte[] buffer = new byte[4096];
-            int len;
-            while ((len = gzipInputStream.read(buffer)) > 0) {
-                fileOutputStream.write(buffer, 0, len);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                fileOutputStream.write(buffer, 0, length);
             }
-
-            // Đóng các stream
-            fileOutputStream.close();
-            gzipInputStream.close();
-            inputStream.close();
+            // Giải nén byte[] thành file mp3
+//            gzipInputStream = new GZIPInputStream(inputStream);
+//            fileOutputStream = new FileOutputStream(myFile);
+//
+//            byte[] buffer = new byte[4096];
+//            int len;
+//            while ((len = gzipInputStream.read(buffer)) > 0) {
+//                fileOutputStream.write(buffer, 0, len);
+//            }
+//
+//            // Đóng các stream
+//            fileOutputStream.close();
+//            gzipInputStream.close();
+//            inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -102,5 +108,21 @@ public class StorageUtil {
                 }
             }
         }
+    }
+
+    //long cacheSize = getCacheSize(getApplicationContext());
+
+    public long getCacheSize(Context context) {
+        long size = 0;
+        try {
+            File cacheDir = context.getCacheDir();
+            File[] files = cacheDir.listFiles();
+            for (File file : files) {
+                size += file.length();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return size;
     }
 }

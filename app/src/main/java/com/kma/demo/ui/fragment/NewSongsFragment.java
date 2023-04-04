@@ -148,9 +148,9 @@ public class NewSongsFragment extends Fragment {
                     if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
                         if(isAdded()) {
                             Toast.makeText(requireActivity(), "Download successfully", Toast.LENGTH_LONG).show();
+                            requireActivity().unregisterReceiver(this);
                         }
                     }
-                    requireActivity().unregisterReceiver(this);
                 }
             };
 
@@ -263,11 +263,25 @@ public class NewSongsFragment extends Fragment {
     }
 
     private void downloadFile(@NonNull Song song) {
-        if(Constant.isDownloading) {
-            return;
-        }
-        Constant.songDownloadName = song.getTitle();
-        songViewModel.download(song.getUrl());
+        downloadManager = (DownloadManager) requireActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(song.getUrl()));
+
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI)
+                .setTitle(song.getTitle() + ".mp3")
+                .setDescription(song.getTitle() + "-" + song.getArtist())
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, song.getTitle() + ".mp3")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+        enqueue = downloadManager.enqueue(request);
+
+//        Intent i = new Intent();
+//        i.setAction(DownloadManager.ACTION_VIEW_DOWNLOADS);
+//        startActivity(i);
+//        if(Constant.isDownloading) {
+//            return;
+//        }
+//        Constant.songDownloadName = song.getTitle();
+//        songViewModel.download(song.getUrl(), song.getTitle());
     }
 
     private void initListener() {

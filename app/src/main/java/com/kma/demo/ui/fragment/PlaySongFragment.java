@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
@@ -35,9 +36,11 @@ import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.databinding.FragmentPlaySongBinding;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.service.MusicService;
+import com.kma.demo.ui.activity.PlayMusicActivity;
 import com.kma.demo.utils.AppUtil;
 import com.kma.demo.utils.GlideUtils;
 
+import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -51,13 +54,14 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
     private DefaultDataSourceFactory mDefaultDataSourceFactory;
     private DataSource.Factory mCacheDataSourceFactory;
     private SimpleExoPlayer exoPlayer;
+    private MediaSource mediaSource;
     private SimpleCache cache = MyApplication.cache;
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             mAction = intent.getIntExtra(Constant.MUSIC_ACTION, 0);
-            //handleMusicAction();
+            handleMusicAction();
         }
     };
 
@@ -73,60 +77,47 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
         initControl();
         showInforSong();
         mAction = MusicService.mAction;
-        //handleMusicAction();
+        handleMusicAction();
 
         return mFragmentPlaySongBinding.getRoot();
     }
 
     private void initControl() {
-//        mTimer = new Timer();
-//
-//        mFragmentPlaySongBinding.imgPrevious.setOnClickListener(this);
-//        mFragmentPlaySongBinding.imgPlay.setOnClickListener(this);
-//        mFragmentPlaySongBinding.imgNext.setOnClickListener(this);
-//
-//        mFragmentPlaySongBinding.seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//                MusicService.mPlayer.seekTo(seekBar.getProgress());
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//            }
-//
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//            }
-//        });
-
         String videoUrl = MusicService.mListSongPlaying.get(MusicService.mSongPosition).getUrl();
+        if(PlayMusicActivity.isLibrary) {
+            exoPlayer = new SimpleExoPlayer.Builder(MyApplication.get(getActivity())).build();
+            Uri uri = Uri.parse(videoUrl);
+            MediaSource mediaSource = new ProgressiveMediaSource.Factory(new DefaultDataSourceFactory(MyApplication.get(getActivity()), "exoplayer")).createMediaSource(uri);
+            exoPlayer.prepare(mediaSource);
+            exoPlayer.setPlayWhenReady(true);
+            mFragmentPlaySongBinding.playerView.setPlayer(exoPlayer);
+        } else {
+            mHttpDataSourceFactory = new DefaultHttpDataSource.Factory()
+                    .setAllowCrossProtocolRedirects(true);
 
-        mHttpDataSourceFactory = new DefaultHttpDataSource.Factory()
-                .setAllowCrossProtocolRedirects(true);
+            this.mDefaultDataSourceFactory = new DefaultDataSourceFactory(
+                    MyApplication.get(getActivity()), mHttpDataSourceFactory
+            );
 
-        this.mDefaultDataSourceFactory = new DefaultDataSourceFactory(
-                MyApplication.get(getActivity()), mHttpDataSourceFactory
-        );
-
-        mCacheDataSourceFactory = new CacheDataSource.Factory()
-                .setCache(cache)
-                .setUpstreamDataSourceFactory(mHttpDataSourceFactory)
-                .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
+            mCacheDataSourceFactory = new CacheDataSource.Factory()
+                    .setCache(cache)
+                    .setUpstreamDataSourceFactory(mHttpDataSourceFactory)
+                    .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
 
 
-        exoPlayer = new SimpleExoPlayer.Builder(MyApplication.get(getActivity()))
+            exoPlayer = new SimpleExoPlayer.Builder(MyApplication.get(getActivity()))
                 .setMediaSourceFactory(new DefaultMediaSourceFactory(mCacheDataSourceFactory)).build();
 
-        Uri videoUri = Uri.parse(videoUrl);
-        MediaItem mediaItem = MediaItem.fromUri(videoUri);
-        MediaSource mediaSource = new ProgressiveMediaSource.Factory(mCacheDataSourceFactory).createMediaSource(mediaItem);
+            Uri videoUri = Uri.parse(videoUrl);
+            MediaItem mediaItem = MediaItem.fromUri(videoUri);
+            mediaSource = new ProgressiveMediaSource.Factory(mCacheDataSourceFactory).createMediaSource(mediaItem);
+            mFragmentPlaySongBinding.playerView.setPlayer(exoPlayer);
+            exoPlayer.setPlayWhenReady(true);
+            exoPlayer.seekTo(0, 0);
+            exoPlayer.setMediaSource(mediaSource, true);
+            exoPlayer.prepare();
+        }
 
-        mFragmentPlaySongBinding.playerView.setPlayer(exoPlayer);
-        exoPlayer.setPlayWhenReady(true);
-        exoPlayer.seekTo(0, 0);
-        exoPlayer.setMediaSource(mediaSource, true);
-        exoPlayer.prepare();
     }
 
     private void showInforSong() {
@@ -144,35 +135,6 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
             if (getActivity() != null) {
                 getActivity().onBackPressed();
             }
-            return;
-        }
-        switch (mAction) {
-            case Constant.PREVIOUS:
-            case Constant.NEXT:
-                stopAnimationPlayMusic();
-                showInforSong();
-                break;
-
-            case Constant.PLAY:
-                showInforSong();
-                if (MusicService.isPlaying) {
-                    startAnimationPlayMusic();
-                }
-                showSeekBar();
-                showStatusButtonPlay();
-                break;
-
-            case Constant.PAUSE:
-                stopAnimationPlayMusic();
-                showSeekBar();
-                showStatusButtonPlay();
-                break;
-
-            case Constant.RESUME:
-                startAnimationPlayMusic();
-                showSeekBar();
-                showStatusButtonPlay();
-                break;
         }
     }
 
@@ -190,34 +152,6 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
 
     private void stopAnimationPlayMusic() {
         mFragmentPlaySongBinding.imgSong.animate().cancel();
-    }
-
-    public void showSeekBar() {
-        mTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (getActivity() == null) {
-                    return;
-                }
-                getActivity().runOnUiThread(() -> {
-                    if (MusicService.mPlayer == null) {
-                        return;
-                    }
-                    mFragmentPlaySongBinding.tvTimeCurrent.setText(AppUtil.getTime(MusicService.mPlayer.getCurrentPosition()));
-                    mFragmentPlaySongBinding.tvTimeMax.setText(AppUtil.getTime(MusicService.mLengthSong));
-                    mFragmentPlaySongBinding.seekbar.setMax(MusicService.mLengthSong);
-                    mFragmentPlaySongBinding.seekbar.setProgress(MusicService.mPlayer.getCurrentPosition());
-                });
-            }
-        }, 0, 1000);
-    }
-
-    private void showStatusButtonPlay() {
-//        if (MusicService.isPlaying) {
-//            mFragmentPlaySongBinding.imgPlay.setImageResource(R.drawable.ic_pause_black);
-//        } else {
-//            mFragmentPlaySongBinding.imgPlay.setImageResource(R.drawable.ic_play_black);
-//        }
     }
 
     @Override
