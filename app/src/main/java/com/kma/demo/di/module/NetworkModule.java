@@ -6,6 +6,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.data.network.ApiService;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
@@ -16,6 +17,7 @@ import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -30,10 +32,15 @@ public class NetworkModule {
     public static OkHttpClient provideOkHttpClient() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        long maxRequestSize = 100 * 1024 * 1024;
         return new OkHttpClient.Builder()
                 .addInterceptor(interceptor)
-                .connectTimeout(1, MINUTES)
-                .readTimeout(30, SECONDS).build();
+                .connectTimeout(5, MINUTES)
+                .readTimeout(3, MINUTES)
+                .writeTimeout(3, MINUTES)
+                .retryOnConnectionFailure(true)
+                .protocols(Arrays.asList(Protocol.HTTP_1_1))
+                .build();
     }
 
     @Singleton

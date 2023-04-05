@@ -54,7 +54,7 @@ public class LibraryFragment extends Fragment {
         songDiffUtilCallBack = new SongDiffUtilCallBack();
         songViewModel = new ViewModelProvider(this, viewModelFactory).get(SongViewModel.class);
         displayListLibrarySongs();
-        songViewModel.getmListLocalSongLiveData().observe(getActivity(), new Observer<List<Song>>() {
+        songViewModel.getmListLocalSongLiveData().observe(getViewLifecycleOwner(), new Observer<List<Song>>() {
             @Override
             public void onChanged(List<Song> songs) {
                 songAdapter.submitList(songs);
@@ -111,6 +111,13 @@ public class LibraryFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        activity.getActivityMainBinding().header.layoutPlayAll.setOnClickListener(null);
+        songAdapter.setCallback(null);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         activity.getActivityMainBinding().header.layoutPlayAll.setOnClickListener(null);
         songAdapter.setCallback(null);
     }

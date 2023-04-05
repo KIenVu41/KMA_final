@@ -48,6 +48,7 @@ import com.kma.demo.utils.Resource;
 import com.kma.demo.utils.StorageUtil;
 import com.kma.demo.worker.VideoPreloadWorker;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,9 +70,6 @@ public class AllSongsFragment extends Fragment {
     private List<Song> mListSong = new ArrayList<>();
     private SongDiffUtilCallBack songDiffUtilCallBack;
     private SongAdapter songAdapter;
-    private DownloadManager downloadManager;
-    private long enqueue = 0;
-    private BroadcastReceiver downloadReceiver = null;
     private boolean isError = false;
     private boolean isLoading = false;
     private boolean isLastPage = false;
@@ -91,7 +89,7 @@ public class AllSongsFragment extends Fragment {
         songViewModel = new ViewModelProvider(this, viewModelFactory).get(SongViewModel.class);
         displayListAllSongs();
 
-        songViewModel.getResourceLiveData().observe(getActivity(), new Observer<Resource>() {
+        songViewModel.getResourceLiveData().observe(getViewLifecycleOwner(), new Observer<Resource>() {
             @Override
             public void onChanged(Resource resource) {
                 switch (resource.status) {
@@ -120,13 +118,17 @@ public class AllSongsFragment extends Fragment {
                 }
             }
         });
-        songViewModel.getDownloadLiveData().observe(getActivity(), new Observer<Resource>() {
+        songViewModel.getDownloadLiveData().observe(getViewLifecycleOwner(), new Observer<Resource>() {
             @Override
             public void onChanged(Resource resource) {
                 switch (resource.status) {
                     case SUCCESS:
                         if(resource.data != null) {
-                            StorageUtil.decompressAndSave((InputStream) resource.data, Constant.songDownloadName + ".mp3");
+                            try {
+                                StorageUtil.convertInputStreamToMp3File((InputStream) resource.data, Constant.songDownloadName + ".mp3");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             hideErrorMessage();
                             hideProgressBar();
                         }
@@ -145,22 +147,6 @@ public class AllSongsFragment extends Fragment {
                 }
             }
         });
-        if (downloadReceiver == null) {
-            downloadReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    String action = intent.getAction();
-                    if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
-                        if (isAdded()) {
-                            Toast.makeText(requireActivity(), "Download successfully", Toast.LENGTH_LONG).show();
-                            requireActivity().unregisterReceiver(this);
-                        }
-                    }
-                }
-            };
-
-            requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-        }
 
         getListAllSongs();
         initListener();
@@ -255,21 +241,11 @@ public class AllSongsFragment extends Fragment {
     }
 
     private void downloadFile(@NonNull Song song) {
-        downloadManager = (DownloadManager) requireActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(song.getUrl()));
-
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI)
-                .setTitle(song.getTitle() + ".mp3")
-                .setDescription(song.getTitle() + "-" + song.getArtist())
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, song.getTitle() + ".mp3")
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-
-        enqueue = downloadManager.enqueue(request);
-//        if(Constant.isDownloading) {
-//            return;
-//        }
-//        Constant.songDownloadName = song.getTitle();
-//        songViewModel.download(song.getUrl(), song.getTitle());
+        if(Constant.isDownloading) {
+            return;
+        }
+        Constant.songDownloadName = song.getTitle();
+        songViewModel.download(song.getUrl(), song.getTitle());
     }
 
     private void initListener() {

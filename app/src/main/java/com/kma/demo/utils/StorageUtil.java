@@ -10,6 +10,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,60 +58,30 @@ public class StorageUtil {
 
     }
 
-    public static void decompressAndSave(InputStream compressedData, String fileName) {
-        InputStream inputStream = compressedData;
-        GZIPInputStream gzipInputStream = null;
-        FileOutputStream fileOutputStream = null;
-        File downloadFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        File myFile = new File(downloadFolder, fileName);
+    public static void convertInputStreamToMp3File(InputStream inputStream, String filePath) throws IOException {
+        FileOutputStream outputStream = null;
         try {
-            fileOutputStream = new FileOutputStream(myFile);
+            inputStream = new GZIPInputStream(inputStream);
+
+            File downloadFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File outputFile = new File(downloadFolder, filePath);
+            outputStream = new FileOutputStream(outputFile);
+
             byte[] buffer = new byte[1024];
-            int length;
-            while ((length = inputStream.read(buffer)) > 0) {
-                fileOutputStream.write(buffer, 0, length);
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, bytesRead);
             }
-            // Giải nén byte[] thành file mp3
-//            gzipInputStream = new GZIPInputStream(inputStream);
-//            fileOutputStream = new FileOutputStream(myFile);
-//
-//            byte[] buffer = new byte[4096];
-//            int len;
-//            while ((len = gzipInputStream.read(buffer)) > 0) {
-//                fileOutputStream.write(buffer, 0, len);
-//            }
-//
-//            // Đóng các stream
-//            fileOutputStream.close();
-//            gzipInputStream.close();
-//            inputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
-            if(inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            // Close the input and output streams
+            if (inputStream != null) {
+                inputStream.close();
             }
-            if(gzipInputStream != null) {
-                try {
-                    gzipInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if(fileOutputStream != null) {
-                try {
-                    fileOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            if (outputStream != null) {
+                outputStream.close();
             }
         }
     }
-
     //long cacheSize = getCacheSize(getApplicationContext());
 
     public long getCacheSize(Context context) {
