@@ -38,6 +38,7 @@
     <string name="msg_send_feedback_success">Send feedback successfully!</string>
     <string name="msg_exit_app">Are you sure you want to exit?</string>
     <string name="msg_get_date_error">General error, please try again later</string>
+    <string name="msg_no_internet">No internet Access</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

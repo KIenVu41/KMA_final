@@ -158,7 +158,6 @@ public class AllSongsFragment extends Fragment {
         if (getActivity() == null) {
             return;
         }
-        //songViewModel.getAllSongs("");
         songViewModel.pagination();
     }
 

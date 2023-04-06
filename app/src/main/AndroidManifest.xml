@@ -35,6 +35,10 @@
             android:name=".service.MusicReceiver"
             android:exported="false" />
 
+        <receiver
+            android:name=".service.NetworkReceiver"
+            android:exported="false" />
+
         <activity
             android:exported="true"
             android:name=".ui.activity.SplashActivity">

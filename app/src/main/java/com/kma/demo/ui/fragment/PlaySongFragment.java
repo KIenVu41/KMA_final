@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +19,12 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
@@ -112,6 +115,18 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
             MediaItem mediaItem = MediaItem.fromUri(videoUri);
             mediaSource = new ProgressiveMediaSource.Factory(mCacheDataSourceFactory).createMediaSource(mediaItem);
             mFragmentPlaySongBinding.playerView.setPlayer(exoPlayer);
+            mFragmentPlaySongBinding.playerView.setControllerHideOnTouch(false);
+            exoPlayer.addListener(new Player.Listener() {
+                @Override
+                public void onIsPlayingChanged(boolean isPlaying) {
+                    Player.Listener.super.onIsPlayingChanged(isPlaying);
+                    if(isPlaying) {
+                        startAnimationPlayMusic();
+                    } else {
+                        stopAnimationPlayMusic();
+                    }
+                }
+            });
             exoPlayer.setPlayWhenReady(true);
             exoPlayer.seekTo(0, 0);
             exoPlayer.setMediaSource(mediaSource, true);
@@ -136,6 +151,40 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
                 getActivity().onBackPressed();
             }
         }
+        mFragmentPlaySongBinding.playerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(exoPlayer.isPlaying()) {
+                    stopAnimationPlayMusic();
+                    Log.d("TAG", "exo stop");
+                } else {
+                    startAnimationPlayMusic();
+                    Log.d("TAG", "exo stop");
+                }
+            }
+        });
+        mFragmentPlaySongBinding.playerView.setControllerVisibilityListener(new PlayerControlView.VisibilityListener() {
+            @Override
+            public void onVisibilityChange(int visibility) {
+                if (visibility == View.VISIBLE) {
+                    // Playback controls are visible, handle click events here
+                    mFragmentPlaySongBinding.playerView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // Handle click event here
+                            if(exoPlayer.isPlaying()) {
+                                stopAnimationPlayMusic();
+                            } else {
+                                startAnimationPlayMusic();
+                            }
+                        }
+                    });
+                } else {
+                    // Playback controls are hidden, remove click listener
+                    mFragmentPlaySongBinding.playerView.setOnClickListener(null);
+                }
+            }
+        });
     }
 
     private void startAnimationPlayMusic() {
