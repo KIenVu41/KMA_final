@@ -2,6 +2,7 @@ package com.kma.demo.data.local.cache;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.LruCache;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -20,75 +21,24 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
 public class CacheManager {
-    private Context context;
+    private LruCache<String, Object> cache;
 
-    public CacheManager(Context context) {
-        this.context = context;
+    public CacheManager() {
+        int cacheSize = 4 * 1024 * 1024; // 4MB
+        cache = new LruCache<String, Object>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Object value) {
+                return super.sizeOf(key, value);
+            }
+        };
     }
 
-    public void writeJson(Object object, Type type, String fileName) {
-        File file = new File(context.getCacheDir(), fileName);
-        OutputStream outputStream = null;
-        Gson gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create();
-        try {
-            outputStream = new FileOutputStream(file);
-            BufferedWriter bufferedWriter;
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream,
-                        StandardCharsets.UTF_8));
-            } else {
-                bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-            }
-
-            gson.toJson(object, type, bufferedWriter);
-            bufferedWriter.close();
-
-        } catch (FileNotFoundException e) {
-        } catch (IOException e) {
-        } finally {
-            if (outputStream != null) {
-                try {
-                    outputStream.flush();
-                    outputStream.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-
+    public void put(String key, Object value) {
+        cache.put(key, value);
     }
 
-
-    public Object readJson(Type type, String fileName) {
-        Object jsonData = null;
-
-        File file = new File(context.getCacheDir(), fileName);
-        InputStream inputStream = null;
-        Gson gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().create();
-        try {
-            inputStream = new FileInputStream(file);
-            InputStreamReader streamReader;
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                streamReader = new InputStreamReader(inputStream,
-                        StandardCharsets.UTF_8);
-            } else {
-                streamReader = new InputStreamReader(inputStream, "UTF-8");
-            }
-
-            jsonData = gson.fromJson(streamReader, type);
-            streamReader.close();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-        return jsonData;
+    public Object get(String key) {
+        return cache.get(key);
     }
+
 }

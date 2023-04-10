@@ -3,9 +3,12 @@ package com.kma.demo.di.module;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import android.app.Application;
+
 import com.kma.demo.constant.Constant;
 import com.kma.demo.data.network.ApiService;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
@@ -27,17 +30,22 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @InstallIn(SingletonComponent.class)
 public class NetworkModule {
 
-    @Singleton
     @Provides
-    public static OkHttpClient provideOkHttpClient() {
+    @Singleton
+    public static HttpLoggingInterceptor provideLoggingInterceptor(){
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        long maxRequestSize = 100 * 1024 * 1024;
+        return interceptor;
+    }
+
+    @Singleton
+    @Provides
+    public static OkHttpClient provideOkHttpClient(HttpLoggingInterceptor interceptor) {
         return new OkHttpClient.Builder()
                 .addInterceptor(interceptor)
                 .connectTimeout(5, MINUTES)
-                .readTimeout(3, MINUTES)
-                .writeTimeout(3, MINUTES)
+                .readTimeout(5, MINUTES)
+                .writeTimeout(5, MINUTES)
                 .retryOnConnectionFailure(true)
                 .protocols(Arrays.asList(Protocol.HTTP_1_1))
                 .build();

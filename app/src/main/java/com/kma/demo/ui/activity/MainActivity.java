@@ -1,5 +1,6 @@
 package com.kma.demo.ui.activity;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -11,9 +12,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.kma.demo.R;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
@@ -63,6 +68,15 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         openHomeScreen();
         initListener();
         displayLayoutBottom();
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        String token = task.getResult();
+                        Log.d("TAG", token);
+                    }
+                });
     }
 
     private void initToolbar(String title) {

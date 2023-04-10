@@ -3,10 +3,10 @@ package com.kma.demo.data.repository.impl;
 import android.content.Context;
 
 import com.kma.demo.constant.Constant;
+import com.kma.demo.data.local.cache.Cache;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.data.network.ApiService;
 import com.kma.demo.data.repository.SongRepository;
-import com.kma.demo.utils.Resource;
 import com.kma.demo.utils.StorageUtil;
 
 import java.io.File;
@@ -16,16 +16,17 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import okhttp3.ResponseBody;
 
 public class SongRepositoryImpl implements SongRepository {
 
     private ApiService apiService;
+    private final Cache<String, Object> cache;
 
     @Inject
-    public SongRepositoryImpl(ApiService apiService) {
+    public SongRepositoryImpl(ApiService apiService, Cache<String, Object> cache) {
         this.apiService = apiService;
+        this.cache = cache;
     }
 
     public Observable<List<Song>> getAllSongs(String name) {
@@ -56,22 +57,46 @@ public class SongRepositoryImpl implements SongRepository {
 
     @Override
     public Observable<List<Song>> pagination(int page) {
-        return apiService.pagination(page);
+        List<Song> homePaginate = (List<Song>) cache.get(Constant.HOME_CACHE + page);
+        if(homePaginate != null && homePaginate.size() > 0) {
+            return Observable.just(homePaginate);
+        }
+        return apiService.pagination(page).doOnNext(songList -> {
+            cache.put(Constant.HOME_CACHE + page, songList);
+        });
     }
 
     @Override
     public Observable<List<Song>> featuredPagination(int page) {
-        return apiService.featuredPagination(page);
+        List<Song> featuredPaginate = (List<Song>) cache.get(Constant.FEATURED_CACHE + page);
+        if(featuredPaginate != null && featuredPaginate.size() > 0) {
+            return Observable.just(featuredPaginate);
+        }
+        return apiService.featuredPagination(page).doOnNext(songList -> {
+            cache.put(Constant.FEATURED_CACHE + page, songList);
+        });
     }
 
     @Override
     public Observable<List<Song>> popularPagination(int page) {
-        return apiService.popularPagination(page);
+        List<Song> popularPaginate = (List<Song>) cache.get(Constant.POPULAR_CACHE + page);
+        if (popularPaginate != null && popularPaginate.size() > 0) {
+            return Observable.just(popularPaginate);
+        }
+        return apiService.popularPagination(page).doOnNext(songList -> {
+            cache.put(Constant.POPULAR_CACHE + page, songList);
+        });
     }
 
     @Override
     public Observable<List<Song>> latestPagination(int page) {
-        return apiService.latestPagination(page);
+        List<Song> latestPaginate = (List<Song>) cache.get(Constant.LATEST_CACHE + page);
+        if(latestPaginate != null && latestPaginate.size() > 0) {
+            return Observable.just(latestPaginate);
+        }
+        return apiService.latestPagination(page).doOnNext(songList -> {
+            cache.put(Constant.LATEST_CACHE + page, songList);
+        });
     }
 
     @Override
@@ -81,6 +106,13 @@ public class SongRepositoryImpl implements SongRepository {
 
     @Override
     public Observable<List<Song>> getHomeData() {
-        return apiService.getHomeData();
+        List<Song> data = (List<Song>) cache.get(Constant.HOME_CACHE);
+        if (data != null) {
+            return Observable.just(data);
+        }
+        Observable<List<Song>> homeData = apiService.getHomeData();
+        return homeData.doOnNext(songList -> {
+            cache.put(Constant.HOME_CACHE, songList);
+        });
     }
 }

@@ -29,4 +29,11 @@ public class Constant {
     public static final int QUERY_PAGE_SIZE = 20;
     public static boolean isDownloading = false;
     public static String songDownloadName = "";
+
+    // cache
+    public static final String HOME_CACHE = "home";
+    public static final String ALL_CACHE = "all";
+    public static final String FEATURED_CACHE = "featured";
+    public static final String LATEST_CACHE = "latest";
+    public static final String POPULAR_CACHE = "popular";
 }

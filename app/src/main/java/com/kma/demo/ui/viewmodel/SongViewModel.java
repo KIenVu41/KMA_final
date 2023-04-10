@@ -24,6 +24,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.CacheControl;
 import okhttp3.ResponseBody;
 
 @HiltViewModel
@@ -44,12 +45,6 @@ public class SongViewModel extends AndroidViewModel {
     public int featuredPage = 1;
     public int popularPage = 1;
     public int latestPage = 1;
-
-//    @Inject
-//    public SongViewModel(SongRepository songRepository) {
-//        this.songRepository = songRepository;
-//        compositeDisposable = new CompositeDisposable();
-//    }
 
     @Inject
     public SongViewModel(@NonNull Application application, SongRepository songRepository) {
