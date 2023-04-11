@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -68,6 +69,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         openHomeScreen();
         initListener();
         displayLayoutBottom();
+
+        ActivityManager.MemoryInfo memoryInfo = getAvailableMemory();
+        if (!memoryInfo.lowMemory) {
+            Log.d("TAG" , "available mem " + memoryInfo.availMem);
+        } else {
+            Log.d("TAG" , "low mem");
+        }
 
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(new OnCompleteListener<String>() {

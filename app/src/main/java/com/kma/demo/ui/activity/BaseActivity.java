@@ -1,5 +1,6 @@
 package com.kma.demo.ui.activity;
 
+import android.app.ActivityManager;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -83,5 +84,12 @@ public abstract class BaseActivity extends AppCompatActivity {
             alertDialog.dismiss();
         }
         super.onDestroy();
+    }
+
+    public ActivityManager.MemoryInfo getAvailableMemory() {
+        ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+        activityManager.getMemoryInfo(memoryInfo);
+        return memoryInfo;
     }
 }

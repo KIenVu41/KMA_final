@@ -217,6 +217,7 @@ public class PlaySongFragment extends Fragment implements View.OnClickListener {
             exoPlayer.release();
             exoPlayer = null;
         }
+        stopAnimationPlayMusic();
     }
 
     @Override

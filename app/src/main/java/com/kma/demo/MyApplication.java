@@ -47,6 +47,5 @@ public class MyApplication extends Application {
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        //deleteCache(this);
     }
 }

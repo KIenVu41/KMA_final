@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -72,7 +74,7 @@ public class NewSongsFragment extends Fragment {
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private boolean isScrolling = false;
-    private String songName = "";
+    private boolean isRefresh = false;
 
     @Nullable
     @Override
@@ -91,6 +93,11 @@ public class NewSongsFragment extends Fragment {
                         if(resource.data != null) {
                             hideProgressBar();
                             hideErrorMessage();
+
+                            if(isRefresh) {
+                                mFragmentNewSongsBinding.swipeRefreshLayout.setRefreshing(false);
+                                isRefresh = false;
+                            }
 
                             mListSong.addAll((List<Song>) resource.data);
                             songAdapter.submitList(mListSong);
@@ -200,6 +207,18 @@ public class NewSongsFragment extends Fragment {
         mFragmentNewSongsBinding.itemErrorMessage.btnRetry.setOnClickListener(view -> {
             songViewModel.latestPagination();
         });
+
+        mFragmentNewSongsBinding.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                isRefresh = true;
+                songViewModel.latestPage = 1;
+                mFragmentNewSongsBinding.rcvData.setPadding(0, 0, 0, 50);
+                mListSong.clear();
+                songAdapter.submitList(mListSong);
+                songViewModel.latestPagination();
+            }
+        });
     }
 
     private void goToSongDetail(@NonNull Song song) {
@@ -213,8 +232,16 @@ public class NewSongsFragment extends Fragment {
     }
 
     private void hideProgressBar() {
-        mFragmentNewSongsBinding.paginationProgressBar.setVisibility(View.INVISIBLE);
-        isLoading = false;
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!activity.isFinishing()) {
+                    mFragmentNewSongsBinding.paginationProgressBar.setVisibility(View.INVISIBLE);
+                    isLoading = false;
+                }
+            }
+        }, 500);
     }
 
     private void showProgressBar() {

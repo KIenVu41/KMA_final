@@ -31,7 +31,6 @@ import okhttp3.ResponseBody;
 public class SongViewModel extends AndroidViewModel {
 
     private final SongRepository songRepository;
-    private MutableLiveData<List<Song>> mListSongLiveData = new MutableLiveData<>();
     private MutableLiveData<Resource> mSongLiveData = new MutableLiveData<>();
     private MutableLiveData<Resource> mFeaturedLiveData = new MutableLiveData<>();
     private MutableLiveData<Resource> mPopularLiveData = new MutableLiveData<>();
@@ -52,13 +51,6 @@ public class SongViewModel extends AndroidViewModel {
         this.songRepository = songRepository;
         this.application = application;
         compositeDisposable = new CompositeDisposable();
-    }
-
-    public void getAllSongs(String name) {
-        compositeDisposable.add(songRepository.getAllSongs(name)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(list -> mListSongLiveData.postValue(list), throwable -> {}));
     }
 
     public void getHomeData() {
@@ -171,10 +163,6 @@ public class SongViewModel extends AndroidViewModel {
 
     private boolean hasInternetConnection() {
         return NetworkUtil.hasConnection(application);
-    }
-
-    public LiveData<List<Song>> getmListSongLiveData() {
-        return mListSongLiveData;
     }
 
     public LiveData<Resource> getResourceLiveData() {
