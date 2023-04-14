@@ -106,28 +106,29 @@ public class HomeFragment extends Fragment {
         displayListPopularSongs();
         displayListNewSongs();
         songViewModel = new ViewModelProvider(this, viewModelFactory).get(SongViewModel.class);
-        songViewModel.getmListHomeLiveData().observe(getViewLifecycleOwner(), new Observer<List<Song>>() {
+        songViewModel.getmListHomeLiveData().observe(getViewLifecycleOwner(), new Observer<Resource>() {
             @Override
-            public void onChanged(List<Song> songs) {
-                mFragmentHomeBinding.layoutContent.setVisibility(View.VISIBLE);
-                mListSong = new ArrayList<>();
-                for (Song song : songs) {
-                    if (song == null) {
-                        return;
-                    }
+            public void onChanged(Resource resource) {
+                switch (resource.status) {
+                    case SUCCESS:
+                        if(resource.data != null) {
+                            mFragmentHomeBinding.layoutContent.setVisibility(View.VISIBLE);
+                            if(mListSong != null && mListSong.size() > 0) {
+                                mListSong.clear();
+                            } else {
+                                mListSong = new ArrayList<>();
+                            }
+                            mListSong.addAll((List<Song>) resource.data);
 
-                    if (StringUtil.isEmpty(strKey)) {
-                        mListSong.add(0, song);
-                    } else {
-                        if (GlobalFuntion.getTextSearch(song.getTitle()).toLowerCase().trim()
-                                .contains(GlobalFuntion.getTextSearch(strKey).toLowerCase().trim())) {
-                            mListSong.add(0, song);
+                            getListBannerSongs();
+                            getListPopularSongs();
+                            getListNewSongs();
                         }
-                    }
+                        break;
+                    case LOADING:
+                    case ERROR:
+                        break;
                 }
-                getListBannerSongs();
-                getListPopularSongs();
-                getListNewSongs();
             }
         });
         songViewModel.getDownloadLiveData().observe(getViewLifecycleOwner(), new Observer<Resource>() {

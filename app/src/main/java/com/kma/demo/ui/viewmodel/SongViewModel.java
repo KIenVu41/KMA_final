@@ -2,29 +2,25 @@ package com.kma.demo.ui.viewmodel;
 
 import android.app.Application;
 import android.content.Context;
-import android.view.View;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
-
+import com.kma.demo.constant.Constant;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.data.repository.SongRepository;
 import com.kma.demo.utils.NetworkUtil;
 import com.kma.demo.utils.Resource;
-
-import java.io.IOException;
 import java.util.List;
-
 import javax.inject.Inject;
-
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.CacheControl;
 import okhttp3.ResponseBody;
 
 @HiltViewModel
@@ -37,7 +33,7 @@ public class SongViewModel extends AndroidViewModel {
     private MutableLiveData<Resource> mLatestLiveData = new MutableLiveData<>();
     private MutableLiveData<Resource> mDownloadLiveData = new MutableLiveData<>();
     private MutableLiveData<List<Song>> mListLocalSongLiveData = new MutableLiveData<>();
-    private MutableLiveData<List<Song>> mListHomeLiveData = new MutableLiveData<>();
+    private MutableLiveData<Resource> mListHomeLiveData = new MutableLiveData<>();
     private CompositeDisposable compositeDisposable = null;
     private Application application;
     public int songPage = 1;
@@ -54,10 +50,27 @@ public class SongViewModel extends AndroidViewModel {
     }
 
     public void getHomeData() {
-        compositeDisposable.add(songRepository.getHomeData()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(list -> mListHomeLiveData.postValue(list), throwable -> {}));
+        mListHomeLiveData.postValue(Resource.loading(null));
+        if(hasInternetConnection()) {
+            compositeDisposable.add(songRepository.getHomeData()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::handleHomeResponse, throwable -> {
+                        mListHomeLiveData.postValue(Resource.error(throwable.getMessage(), null));
+                    }));
+        } else {
+            try {
+                compositeDisposable.add(songRepository.getSongsByType(Constant.DB_HOME, 0)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(songList -> mListHomeLiveData.postValue(Resource.success(songList)), throwable -> {
+                            mListHomeLiveData.postValue(Resource.error(throwable.getMessage(), null));
+                        })
+                );
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void download(String url, String name) {
@@ -84,7 +97,20 @@ public class SongViewModel extends AndroidViewModel {
                         mSongLiveData.postValue(Resource.error(throwable.getMessage(), null));
                     }));
         } else {
-            mSongLiveData.postValue(Resource.error("No internet connection",null));
+            try {
+                compositeDisposable.add(songRepository.getSongsByType(Constant.DB_ALL, songPage)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(songList -> {
+                            mSongLiveData.postValue(Resource.success(songList));
+                            songPage++;
+                        }, throwable -> {
+                            mSongLiveData.postValue(Resource.error(throwable.getMessage(), null));
+                        })
+                );
+            } catch (Exception e) {
+                mSongLiveData.postValue(Resource.error("No internet connection",null));
+            }
         }
     }
 
@@ -98,7 +124,20 @@ public class SongViewModel extends AndroidViewModel {
                         mFeaturedLiveData.postValue(Resource.error(throwable.getMessage(), null));
                     }));
         } else {
-            mFeaturedLiveData.postValue(Resource.error("No internet connection",null));
+            try {
+                compositeDisposable.add(songRepository.getSongsByType(Constant.DB_FEATURED, featuredPage)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(songList -> {
+                            mFeaturedLiveData.postValue(Resource.success(songList));
+                            featuredPage++;
+                        }, throwable -> {
+                            mFeaturedLiveData.postValue(Resource.error(throwable.getMessage(), null));
+                        })
+                );
+            } catch (Exception e) {
+                mFeaturedLiveData.postValue(Resource.error("No internet connection", null));
+            }
         }
     }
 
@@ -112,7 +151,20 @@ public class SongViewModel extends AndroidViewModel {
                         mPopularLiveData.postValue(Resource.error(throwable.getMessage(), null));
                     }));
         } else {
-            mPopularLiveData.postValue(Resource.error("No internet connection",null));
+            try {
+                compositeDisposable.add(songRepository.getSongsByType(Constant.DB_POPULAR, popularPage)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(songList -> {
+                            mPopularLiveData.postValue(Resource.success(songList));
+                            popularPage++;
+                        }, throwable -> {
+                            mPopularLiveData.postValue(Resource.error(throwable.getMessage(), null));
+                        })
+                );
+            } catch (Exception e) {
+                mPopularLiveData.postValue(Resource.error("No internet connection",null));
+            }
         }
     }
 
@@ -126,28 +178,123 @@ public class SongViewModel extends AndroidViewModel {
                         mLatestLiveData.postValue(Resource.error(throwable.getMessage(), null));
                     }));
         } else {
-            mLatestLiveData.postValue(Resource.error("No internet connection",null));
+            try {
+                compositeDisposable.add(songRepository.getSongsByType(Constant.DB_LATEST, latestPage)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(songList -> {
+                            mLatestLiveData.postValue(Resource.success(songList));
+                            latestPage++;
+                        }, throwable -> {
+                            mLatestLiveData.postValue(Resource.error(throwable.getMessage(), null));
+                        })
+                );
+            } catch (Exception e) {
+                mLatestLiveData.postValue(Resource.error("No internet connection",null));
+            }
         }
     }
 
     public void handleResponse(List<Song> songList) {
-        songPage++;
         mSongLiveData.postValue(Resource.success(songList));
+        Disposable deleteDisposable = Observable.fromCallable(() -> {
+            songRepository.deleteByType(Constant.DB_ALL, songPage);
+            return true;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {},
+                        error -> Log.e("TAG", "Error executing all delete queries", error));
+
+        Disposable insertDisposable = Observable.fromCallable(() -> {
+            songRepository.insertSongs(songList, songPage, Constant.DB_ALL);
+            return true;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {},
+                        error -> Log.e("TAG", "Error executing all insert queries", error));
+        compositeDisposable.addAll(deleteDisposable, insertDisposable);
+        songPage++;
+    }
+
+    public void handleHomeResponse(List<Song> songList) {
+        mListHomeLiveData.postValue(Resource.success(songList));
+        Disposable deleteDisposable = Observable.fromCallable(() ->
+            songRepository.deleteByType(Constant.DB_HOME, 0)
+        ).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> Log.e("TAG", "Delete home " + result),
+                        error -> Log.e("TAG", "Error executing home delete queries", error));
+
+        Disposable insertDisposable = Observable.fromCallable(() ->
+            songRepository.insertSongs(songList, 0, Constant.DB_HOME)
+        ).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> Log.e("TAG", "Insert home " + result),
+                        error -> Log.e("TAG", "Error executing home insert queries", error));
+        compositeDisposable.addAll(deleteDisposable, insertDisposable);
     }
 
     public void handleFeaturedResponse(List<Song> songList) {
-        featuredPage++;
         mFeaturedLiveData.postValue(Resource.success(songList));
+        Disposable deleteDisposable = Observable.fromCallable(() -> {
+            songRepository.deleteByType(Constant.DB_FEATURED, featuredPage);
+            return true;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {},
+                        error -> Log.e("TAG", "Error executing featured delete queries", error));
+
+        Disposable insertDisposable = Observable.fromCallable(() -> {
+            songRepository.insertSongs(songList, featuredPage, Constant.DB_FEATURED);
+            return true;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {},
+                        error -> Log.e("TAG", "Error executing featured insert queries", error));
+        compositeDisposable.addAll(deleteDisposable, insertDisposable);
+        featuredPage++;
     }
 
     public void handlePopularResponse(List<Song> songList) {
-        popularPage++;
         mPopularLiveData.postValue(Resource.success(songList));
+        Disposable deleteDisposable = Observable.fromCallable(() -> {
+            songRepository.deleteByType(Constant.DB_POPULAR, popularPage);
+            return true;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {},
+                        error -> Log.e("TAG", "Error executing popular delete queries", error));
+
+        Disposable insertDisposable = Observable.fromCallable(() -> {
+            songRepository.insertSongs(songList, popularPage, Constant.DB_POPULAR);
+            return true;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {},
+                        error -> Log.e("TAG", "Error executing popular insert queries", error));
+        compositeDisposable.addAll(deleteDisposable, insertDisposable);
+        popularPage++;
     }
 
     public void handleLatestResponse(List<Song> songList) {
-        latestPage++;
         mLatestLiveData.postValue(Resource.success(songList));
+        Disposable deleteDisposable = Observable.fromCallable(() -> {
+            songRepository.deleteByType(Constant.DB_LATEST, latestPage);
+            return true;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {},
+                        error -> Log.e("TAG", "Error executing latest delete queries", error));
+
+        Disposable insertDisposable = Observable.fromCallable(() -> {
+            songRepository.insertSongs(songList, latestPage, Constant.DB_LATEST);
+            return true;
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {},
+                        error -> Log.e("TAG", "Error executing latest insert queries", error));
+        compositeDisposable.addAll(deleteDisposable, insertDisposable);
+        latestPage++;
     }
 
     public void handleDownloadResponse(ResponseBody responseBody) {
@@ -185,7 +332,7 @@ public class SongViewModel extends AndroidViewModel {
         return mListLocalSongLiveData;
     }
 
-    public LiveData<List<Song>> getmListHomeLiveData() {
+    public LiveData<Resource> getmListHomeLiveData() {
         return mListHomeLiveData;
     }
 

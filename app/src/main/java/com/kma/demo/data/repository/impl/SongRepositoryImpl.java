@@ -4,6 +4,9 @@ import android.content.Context;
 
 import com.kma.demo.constant.Constant;
 import com.kma.demo.data.local.cache.Cache;
+import com.kma.demo.data.local.db.SongDatabase;
+import com.kma.demo.data.local.entity.SongEntity;
+import com.kma.demo.data.mapper.SongMapper;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.data.network.ApiService;
 import com.kma.demo.data.repository.SongRepository;
@@ -12,9 +15,12 @@ import com.kma.demo.utils.StorageUtil;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 
@@ -22,11 +28,13 @@ public class SongRepositoryImpl implements SongRepository {
 
     private ApiService apiService;
     private final Cache<String, Object> cache;
+    private SongDatabase songDatabase;
 
     @Inject
-    public SongRepositoryImpl(ApiService apiService, Cache<String, Object> cache) {
+    public SongRepositoryImpl(ApiService apiService, Cache<String, Object> cache, SongDatabase songDatabase) {
         this.apiService = apiService;
         this.cache = cache;
+        this.songDatabase = songDatabase;
     }
 
     public Observable<List<Song>> getAllSongs(String name) {
@@ -57,7 +65,7 @@ public class SongRepositoryImpl implements SongRepository {
 
     @Override
     public Observable<List<Song>> pagination(int page) {
-        List<Song> homePaginate = (List<Song>) cache.get(Constant.HOME_CACHE + page);
+        List<Song> homePaginate = (List<Song>) cache.get(Constant.ALL_CACHE + page);
         if(homePaginate != null && homePaginate.size() > 0) {
             return Observable.just(homePaginate);
         }
@@ -114,5 +122,28 @@ public class SongRepositoryImpl implements SongRepository {
         return homeData.doOnNext(songList -> {
             cache.put(Constant.HOME_CACHE, songList);
         });
+    }
+
+    @Override
+    public Flowable<List<Song>> getSongsByType(int type, int page) {
+        Flowable<List<SongEntity>> listFlowableEntity = songDatabase.songDao().getSongsByType(type, page);
+        return listFlowableEntity
+                .flatMapIterable(entityList -> entityList)
+                .map(songEntity -> SongMapper.getInstance().toDTO(songEntity))
+                .toList().toFlowable();
+    }
+
+    @Override
+    public Completable insertSongs(List<Song> songList, int page, int type) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            List<SongEntity> songEntities = songList.stream().map(dto -> SongMapper.getInstance().toEntity(dto, page, type)).collect(Collectors.toList());
+            return songDatabase.songDao().insertSongs(songEntities);
+        }
+        return null;
+    }
+
+    @Override
+    public Completable deleteByType(int type, int page) {
+        return songDatabase.songDao().deleteByType(type, page);
     }
 }

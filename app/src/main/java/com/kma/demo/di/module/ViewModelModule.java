@@ -5,6 +5,7 @@ import android.app.Application;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.kma.demo.data.local.cache.Cache;
+import com.kma.demo.data.local.db.SongDatabase;
 import com.kma.demo.data.network.ApiService;
 import com.kma.demo.data.repository.SongRepository;
 import com.kma.demo.data.repository.impl.SongRepositoryImpl;
@@ -25,8 +26,8 @@ import dagger.hilt.components.SingletonComponent;
 public class ViewModelModule {
 
     @Provides
-    public SongRepository provideSongRepository(ApiService apiService, Cache<String, Object> cache) {
-        return new SongRepositoryImpl(apiService, cache);
+    public SongRepository provideSongRepository(ApiService apiService, Cache<String, Object> cache, SongDatabase songDatabase) {
+        return new SongRepositoryImpl(apiService, cache, songDatabase);
     }
 
     @Provides

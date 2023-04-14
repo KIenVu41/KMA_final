@@ -12,8 +12,9 @@ public class SongMapper {
         }
         return INSTANCE;
     }
-    public SongEntity toEntity(Song song) {
+    public SongEntity toEntity(Song song, int page, int type) {
         SongEntity songEntity = new SongEntity();
+        songEntity.setId(song.getId());
         songEntity.setDocId(song.getDocId());
         songEntity.setArtist(song.getArtist());
         songEntity.setCount(song.getCount());
@@ -22,10 +23,13 @@ public class SongMapper {
         songEntity.setImage(song.getImage());
         songEntity.setLatest(song.isLatest());
         songEntity.setUrl(song.getUrl());
+        songEntity.setPage(page);
+        songEntity.setType(type);
         return songEntity;
     }
     public Song toDTO(SongEntity songEntity) {
         Song song = new Song();
+        song.setId(songEntity.getId());
         song.setDocId(songEntity.getDocId());
         song.setArtist(songEntity.getArtist());
         song.setCount(songEntity.getCount());

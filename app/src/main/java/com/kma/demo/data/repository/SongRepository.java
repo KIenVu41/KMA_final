@@ -2,6 +2,7 @@ package com.kma.demo.data.repository;
 
 import android.content.Context;
 
+import com.kma.demo.data.local.entity.SongEntity;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.data.network.ApiService;
 import com.kma.demo.data.network.RetrofitInstance;
@@ -11,6 +12,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import okhttp3.ResponseBody;
@@ -32,4 +35,10 @@ public interface SongRepository {
     public Observable<ResponseBody> download(String url, String name);
 
     public Observable<List<Song>> getHomeData();
+
+    public Flowable<List<Song>> getSongsByType(int type, int page);
+
+    public Completable insertSongs(List<Song> songList, int page, int type);
+
+    public Completable deleteByType(int type, int page);
 }

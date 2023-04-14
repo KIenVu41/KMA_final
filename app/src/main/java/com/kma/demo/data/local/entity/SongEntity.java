@@ -1,19 +1,35 @@
 package com.kma.demo.data.local.entity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+@Entity(tableName = "song")
 public class SongEntity {
 
+    @PrimaryKey
+    private int id;
     private String docId;
     private String title;
     private String image;
     private String url;
     private String artist;
+    @Nullable
     private boolean latest;
+    @Nullable
     private boolean featured;
     private int count;
+    private int page;
+    private int type;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getDocId() {
         return docId;
@@ -77,5 +93,21 @@ public class SongEntity {
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

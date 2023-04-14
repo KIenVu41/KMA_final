@@ -36,4 +36,9 @@ public class Constant {
     public static final String FEATURED_CACHE = "featured";
     public static final String LATEST_CACHE = "latest";
     public static final String POPULAR_CACHE = "popular";
+    public static final int DB_HOME = 0;
+    public static final int DB_ALL = 1;
+    public static final int DB_FEATURED = 2;
+    public static final int DB_LATEST = 3;
+    public static final int DB_POPULAR = 4;
 }

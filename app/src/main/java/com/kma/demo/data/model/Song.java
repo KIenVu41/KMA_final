@@ -5,6 +5,7 @@ import java.util.Objects;
 
 public class Song implements Serializable {
 
+    private int id;
     private String docId;
     private String title;
     private String image;
@@ -16,6 +17,14 @@ public class Song implements Serializable {
     private boolean isPlaying;
 
     public Song() {
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getDocId() {
@@ -95,11 +104,11 @@ public class Song implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Song song = (Song) o;
-        return latest == song.latest && featured == song.featured && count == song.count && Objects.equals(docId, song.docId) && Objects.equals(title, song.title) && Objects.equals(image, song.image) && Objects.equals(url, song.url) && Objects.equals(artist, song.artist);
+        return id == song.getId() && latest == song.latest && featured == song.featured && count == song.count && Objects.equals(docId, song.docId) && Objects.equals(title, song.title) && Objects.equals(image, song.image) && Objects.equals(url, song.url) && Objects.equals(artist, song.artist);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(docId, title, image, url, artist, latest, featured, count);
+        return Objects.hash(id, docId, title, image, url, artist, latest, featured, count);
     }
 }

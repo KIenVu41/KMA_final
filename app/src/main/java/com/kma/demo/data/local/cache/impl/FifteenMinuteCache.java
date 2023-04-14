@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 
 public class FifteenMinuteCache<K, V> implements Cache<K, V> {
 
-    private final LinkedHashMap<K, V> cache = new LinkedHashMap<>(16, 0.75f, true);
+    private final LinkedHashMap<K, V> cache = new LinkedHashMap<>(50, 0.75f, true);
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
@@ -32,7 +32,7 @@ public class FifteenMinuteCache<K, V> implements Cache<K, V> {
     private void scheduleExpiration(K key) {
         executorService.submit(() -> {
             try {
-                Thread.sleep(900_000); // 15 minutes
+                Thread.sleep(90_000); // 15 minutes
                 cache.remove(key);
             } catch (InterruptedException e) {
                 // ignore
