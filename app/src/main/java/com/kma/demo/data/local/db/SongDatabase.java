@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase;
 
 import com.kma.demo.data.local.entity.SongEntity;
 
-@Database(entities = {SongEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {SongEntity.class}, version = 1)
 public abstract class SongDatabase extends RoomDatabase {
     public abstract SongDao songDao();
 }

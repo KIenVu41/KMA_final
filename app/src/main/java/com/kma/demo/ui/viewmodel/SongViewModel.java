@@ -13,7 +13,11 @@ import com.kma.demo.data.model.Song;
 import com.kma.demo.data.repository.SongRepository;
 import com.kma.demo.utils.NetworkUtil;
 import com.kma.demo.utils.Resource;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+
 import javax.inject.Inject;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import io.reactivex.Observable;
@@ -338,6 +342,19 @@ public class SongViewModel extends AndroidViewModel {
 
     public LiveData<Resource> getmFeaturedLiveData() {
         return mFeaturedLiveData;
+    }
+
+    public Observable<Boolean> insertUser(final Song song) {
+        List<Song> songs = new ArrayList<Song>();
+        songs.add(song);
+        return Observable.fromCallable(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                songRepository.insertSongs(songs , 0, 0);
+                return true;
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override

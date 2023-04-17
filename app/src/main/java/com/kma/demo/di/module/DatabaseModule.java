@@ -18,7 +18,7 @@ public class DatabaseModule {
 
     @Provides
     public static SongDatabase provideSongDatabase(@ApplicationContext Context context) {
-        return Room.databaseBuilder(context, SongDatabase.class, "songs").build();
+        return Room.databaseBuilder(context, SongDatabase.class, "final").build();
     }
 
     @Provides

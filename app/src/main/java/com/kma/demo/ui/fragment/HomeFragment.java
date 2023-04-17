@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,10 +60,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
 
 @AndroidEntryPoint
 public class HomeFragment extends Fragment {
@@ -155,7 +159,39 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        getListSongFromServer("");
+        Song song = new Song();
+        song.setId(0);
+        song.setArtist("ss");
+        song.setCount(11);
+        song.setDocId("11ss");
+        song.setFeatured(true);
+        song.setLatest(true);
+        song.setTitle("aa");
+        song.setImage("aa");
+        song.setUrl("ssaa");
+        songViewModel.insertUser(song)
+                .subscribe(new io.reactivex.Observer<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(Boolean aBoolean) {
+                        Log.d("TAG", "insert thanh cong");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+        //getListSongFromServer("");
         initListener();
 
         return mFragmentHomeBinding.getRoot();

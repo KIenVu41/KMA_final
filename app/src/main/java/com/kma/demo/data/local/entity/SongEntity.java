@@ -5,8 +5,10 @@ import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity(tableName = "song")
-public class SongEntity {
+public class SongEntity implements Serializable {
 
     @PrimaryKey
     private int id;
@@ -22,6 +24,23 @@ public class SongEntity {
     private int count;
     private int page;
     private int type;
+
+    public SongEntity() {
+    }
+
+    public SongEntity(int id, String docId, String title, String image, String url, String artist, boolean latest, boolean featured, int count, int page, int type) {
+        this.id = id;
+        this.docId = docId;
+        this.title = title;
+        this.image = image;
+        this.url = url;
+        this.artist = artist;
+        this.latest = latest;
+        this.featured = featured;
+        this.count = count;
+        this.page = page;
+        this.type = type;
+    }
 
     public int getId() {
         return id;
