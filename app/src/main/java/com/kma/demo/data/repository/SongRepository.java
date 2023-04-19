@@ -34,11 +34,40 @@ public interface SongRepository {
 
     public Observable<ResponseBody> download(String url, String name);
 
+    // home data
     public Observable<List<Song>> getHomeData();
 
-    public Flowable<List<Song>> getSongsByType(int type, int page);
+    public Observable<List<Song>> getSongsByType(int type, int page);
 
     public Completable insertSongs(List<Song> songList, int page, int type);
 
     public Completable deleteByType(int type, int page);
+
+    // all data
+    public Observable<List<Song>> getAllSongsByPage(int page);
+
+    public Completable insertAllSongs(List<Song> songList, int page, int type);
+
+    public Completable deleteAllByPage(int page);
+
+    // featured data
+    public Observable<List<Song>> getFeaturedByPage(int page);
+
+    public Completable insertFeaturedSongs(List<Song> songList, int page, int type);
+
+    public Completable deleteFeaturedByPage(int page);
+
+    // latest data
+    public Observable<List<Song>> getLatestByPage(int page);
+
+    public Completable insertLatestSongs(List<Song> songList, int page, int type);
+
+    public Completable deleteLatestByPage(int page);
+
+    // popular data
+    public Observable<List<Song>> getPopularByPage(int page);
+
+    public Completable insertPopularSongs(List<Song> songList, int page, int type);
+
+    public Completable deletePopularByPage(int page);
 }

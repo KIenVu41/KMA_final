@@ -1,17 +1,12 @@
 package com.kma.demo.data.local.entity;
 
-import androidx.annotation.Nullable;
 import androidx.room.Entity;
-import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import java.io.Serializable;
-
-@Entity(tableName = "song")
-public class SongEntity{
+@Entity(tableName = "featured")
+public class FeaturedEntity {
     @PrimaryKey
     private int id;
-
     private String docId;
     private String title;
     private String image;
@@ -23,10 +18,10 @@ public class SongEntity{
     private int page;
     private int type;
 
-    public SongEntity() {
+    public FeaturedEntity() {
     }
 
-    public SongEntity(int id, String docId, String title, String image, String url, String artist, boolean latest, boolean featured, int count, int page, int type) {
+    public FeaturedEntity(int id, String docId, String title, String image, String url, String artist, boolean latest, boolean featured, int count, int page, int type) {
         this.id = id;
         this.docId = docId;
         this.title = title;
@@ -126,22 +121,5 @@ public class SongEntity{
 
     public void setType(int type) {
         this.type = type;
-    }
-
-    @Override
-    public String toString() {
-        return "SongEntity{" +
-                "id=" + id +
-                ", docId='" + docId + '\'' +
-                ", title='" + title + '\'' +
-                ", image='" + image + '\'' +
-                ", url='" + url + '\'' +
-                ", artist='" + artist + '\'' +
-                ", latest=" + latest +
-                ", featured=" + featured +
-                ", count=" + count +
-                ", page=" + page +
-                ", type=" + type +
-                '}';
     }
 }

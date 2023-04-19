@@ -26,8 +26,8 @@ import dagger.hilt.components.SingletonComponent;
 public class ViewModelModule {
 
     @Provides
-    public SongRepository provideSongRepository(ApiService apiService, Cache<String, Object> cache, SongDatabase songDatabase) {
-        return new SongRepositoryImpl(apiService, cache, songDatabase);
+    public SongRepository provideSongRepository(ApiService apiService, Cache<String, Object> cache, SongDatabase songDatabase, Application application) {
+        return new SongRepositoryImpl(apiService, cache, songDatabase, application);
     }
 
     @Provides

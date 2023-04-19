@@ -159,39 +159,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        Song song = new Song();
-        song.setId(0);
-        song.setArtist("ss");
-        song.setCount(11);
-        song.setDocId("11ss");
-        song.setFeatured(true);
-        song.setLatest(true);
-        song.setTitle("aa");
-        song.setImage("aa");
-        song.setUrl("ssaa");
-        songViewModel.insertUser(song)
-                .subscribe(new io.reactivex.Observer<Boolean>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(Boolean aBoolean) {
-                        Log.d("TAG", "insert thanh cong");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
-        //getListSongFromServer("");
+        getListSongFromServer("");
         initListener();
 
         return mFragmentHomeBinding.getRoot();

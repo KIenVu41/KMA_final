@@ -20,11 +20,11 @@ import java.util.List;
 public interface SongDao {
 
     @Query("SELECT * FROM song WHERE type = :type AND page = :page")
-    Flowable<List<SongEntity>> getSongsByType(int type, int page);
+    Observable<List<SongEntity>> getSongsByType(int type, int page);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     Completable insertSongs(List<SongEntity> songList);
 
-    @Query("DELETE FROM song WHERE type = :type AND page = :page")
-    Completable deleteByType(int type, int page);
+    @Query("DELETE FROM song")
+    Completable deleteByType();
 }

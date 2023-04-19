@@ -77,14 +77,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             Log.d("TAG" , "low mem");
         }
 
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        String token = task.getResult();
-                        Log.d("TAG", token);
-                    }
-                });
+//        FirebaseMessaging.getInstance().getToken()
+//                .addOnCompleteListener(new OnCompleteListener<String>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<String> task) {
+//                        String token = task.getResult();
+//                        Log.d("TAG", token);
+//                    }
+//                });
     }
 
     private void initToolbar(String title) {

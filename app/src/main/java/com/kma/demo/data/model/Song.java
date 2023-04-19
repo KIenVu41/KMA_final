@@ -111,4 +111,20 @@ public class Song implements Serializable {
     public int hashCode() {
         return Objects.hash(id, docId, title, image, url, artist, latest, featured, count);
     }
+
+    @Override
+    public String toString() {
+        return "Song{" +
+                "id=" + id +
+                ", docId='" + docId + '\'' +
+                ", title='" + title + '\'' +
+                ", image='" + image + '\'' +
+                ", url='" + url + '\'' +
+                ", artist='" + artist + '\'' +
+                ", latest=" + latest +
+                ", featured=" + featured +
+                ", count=" + count +
+                ", isPlaying=" + isPlaying +
+                '}';
+    }
 }
