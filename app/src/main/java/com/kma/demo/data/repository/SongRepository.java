@@ -70,4 +70,6 @@ public interface SongRepository {
     public Completable insertPopularSongs(List<Song> songList, int page, int type);
 
     public Completable deletePopularByPage(int page);
+
+    public void clear();
 }

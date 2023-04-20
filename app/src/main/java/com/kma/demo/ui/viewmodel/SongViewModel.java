@@ -192,5 +192,6 @@ public class SongViewModel extends AndroidViewModel {
     protected void onCleared() {
         super.onCleared();
         compositeDisposable.clear();
+        songRepository.clear();
     }
 }

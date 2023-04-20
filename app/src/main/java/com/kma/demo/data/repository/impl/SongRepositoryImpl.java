@@ -32,6 +32,7 @@ import io.reactivex.CompletableObserver;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
@@ -43,6 +44,7 @@ public class SongRepositoryImpl implements SongRepository {
     private final Cache<String, Object> cache;
     private SongDatabase songDatabase;
     private Application application;
+    private CompositeDisposable compositeDisposable;
 
     @Inject
     public SongRepositoryImpl(ApiService apiService, Cache<String, Object> cache, SongDatabase songDatabase, Application application) {
@@ -50,6 +52,7 @@ public class SongRepositoryImpl implements SongRepository {
         this.songDatabase = songDatabase;
         this.cache = cache;
         this.application = application;
+        compositeDisposable = new CompositeDisposable();
     }
 
     public Observable<List<Song>> getAllSongs(String name) {
@@ -111,7 +114,7 @@ public class SongRepositoryImpl implements SongRepository {
     }
 
     private void handleFeaturedDb(List<Song> songList, int page) {
-        deleteFeaturedByPage(page)
+        Disposable disposable = deleteFeaturedByPage(page)
                 .andThen(insertFeaturedSongs(songList, page, Constant.DB_FEATURED))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -127,6 +130,7 @@ public class SongRepositoryImpl implements SongRepository {
                 }, throwable -> {
                     Log.d("TAG", "featured db f " + throwable.getMessage());
                 });
+        compositeDisposable.add(disposable);
     }
 
     @Override
@@ -146,7 +150,7 @@ public class SongRepositoryImpl implements SongRepository {
     }
 
     private void handlePopularDb(List<Song> songList, int page) {
-        deletePopularByPage(page)
+        Disposable disposable = deletePopularByPage(page)
                 .andThen(insertPopularSongs(songList, page, Constant.DB_POPULAR))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -162,6 +166,7 @@ public class SongRepositoryImpl implements SongRepository {
                 }, throwable -> {
                     Log.d("TAG", "popular db f " + throwable.getMessage());
                 });
+        compositeDisposable.add(disposable);
     }
 
     @Override
@@ -181,7 +186,7 @@ public class SongRepositoryImpl implements SongRepository {
     }
 
     private void handleLatestDb(List<Song> songList, int page) {
-        deleteLatestByPage(page)
+        Disposable disposable = deleteLatestByPage(page)
                 .andThen(insertLatestSongs(songList, page, Constant.DB_LATEST))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -197,6 +202,7 @@ public class SongRepositoryImpl implements SongRepository {
                 }, throwable -> {
                     Log.d("TAG", "latest db f " + throwable.getMessage());
                 });
+        compositeDisposable.add(disposable);
     }
 
     @Override
@@ -222,10 +228,7 @@ public class SongRepositoryImpl implements SongRepository {
     }
 
     private void handleHomeDb(List<Song> songList) {
-//        Completable deleteAllCompletable =  Completable.fromAction(() -> deleteByType(Constant.DB_HOME, 0));
-//        Completable insertSongCompletable =  Completable.fromAction(() -> insertSongs(songList, 0, Constant.DB_HOME));
-
-        deleteByType(Constant.DB_HOME, 0)
+        Disposable disposable = deleteByType(Constant.DB_HOME, 0)
                 .andThen(insertSongs(songList, 0, Constant.DB_HOME))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -241,10 +244,11 @@ public class SongRepositoryImpl implements SongRepository {
                     }, throwable -> {
                         Log.d("TAG", "home db f " + throwable.getMessage());
                     });
+        compositeDisposable.add(disposable);
     }
 
     private void handleAllDb(List<Song> songList, int page) {
-        deleteAllByPage(page)
+        Disposable disposable = deleteAllByPage(page)
                 .andThen(insertAllSongs(songList, page, Constant.DB_ALL))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -260,6 +264,7 @@ public class SongRepositoryImpl implements SongRepository {
                 }, throwable -> {
                     Log.d("TAG", "all db f " + throwable.getMessage());
                 });
+        compositeDisposable.add(disposable);
     }
 
     @Override
@@ -397,7 +402,16 @@ public class SongRepositoryImpl implements SongRepository {
         return songDatabase.popularDao().deleteByPage(page);
     }
 
+    @Override
+    public void clear() {
+        if(compositeDisposable != null) {
+            compositeDisposable.clear();
+        }
+    }
+
     private boolean hasInternetConnection() {
         return NetworkUtil.hasConnection(application);
     }
+
+
 }
