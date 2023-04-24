@@ -4,6 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Transaction;
 
 import com.kma.demo.data.local.entity.FeaturedEntity;
 import com.kma.demo.data.local.entity.LatestEntity;
@@ -21,6 +22,8 @@ public interface LatestDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     Completable insertSongs(List<LatestEntity> songList);
 
+
+    @Transaction
     @Query("DELETE FROM latest WHERE page = :page")
     Completable deleteByPage(int page);
 }

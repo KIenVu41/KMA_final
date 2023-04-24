@@ -4,6 +4,8 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Transaction;
+
 import com.kma.demo.data.local.entity.FeaturedEntity;
 
 import java.util.List;
@@ -19,6 +21,7 @@ public interface FeaturedDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     Completable insertSongs(List<FeaturedEntity> songList);
 
+    @Transaction
     @Query("DELETE FROM featured WHERE page = :page")
     Completable deleteByPage(int page);
 }
