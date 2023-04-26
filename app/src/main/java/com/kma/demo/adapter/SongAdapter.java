@@ -5,10 +5,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.AsyncDifferConfig;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.kma.demo.data.model.SongDiffUtilCallBack;
 import com.kma.demo.databinding.ItemProgressBinding;
 import com.kma.demo.databinding.ItemSongBinding;
 import com.kma.demo.listener.IOnClickSongItemListener;
@@ -17,6 +19,7 @@ import com.kma.demo.listener.OnEndlessScrollListener;
 import com.kma.demo.utils.GlideUtils;
 
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class SongAdapter extends ListAdapter<Song, SongAdapter.SongViewHolder> {
 
@@ -24,7 +27,8 @@ public class SongAdapter extends ListAdapter<Song, SongAdapter.SongViewHolder> {
     public IOnClickSongItemListener iOnClickSongItemDownloadListener;
 
     public SongAdapter(@NonNull DiffUtil.ItemCallback<Song> diffCallback, IOnClickSongItemListener iOnClickSongItemListener, IOnClickSongItemListener iOnClickSongItemDownloadListener) {
-        super(diffCallback);
+        //super(diffCallback);
+        super(new AsyncDifferConfig.Builder<Song>(new SongDiffUtilCallBack()).setBackgroundThreadExecutor(Executors.newSingleThreadExecutor()).build());
         this.iOnClickSongItemListener = iOnClickSongItemListener;
         this.iOnClickSongItemDownloadListener = iOnClickSongItemDownloadListener;
     }

@@ -73,7 +73,6 @@ public class ListSongPlayingFragment extends Fragment {
             MusicService.mListSongPlaying.get(i).setPlaying(i == MusicService.mSongPosition);
         }
         mSongPlayingAdapter.submitList(MusicService.mListSongPlaying);
-        //mSongPlayingAdapter.notifyDataSetChanged();
     }
 
     private void clickItemSongPlaying(int position) {
