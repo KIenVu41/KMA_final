@@ -1,6 +1,7 @@
 package com.kma.demo.data.local.entity;
 
 import androidx.annotation.Nullable;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
@@ -11,7 +12,6 @@ import java.io.Serializable;
 public class SongEntity{
     @PrimaryKey
     private int id;
-
     private String docId;
     private String title;
     private String image;
@@ -22,11 +22,13 @@ public class SongEntity{
     private int count;
     private int page;
     private int type;
+    @ColumnInfo(name = "created_at")
+    private long createAt;
 
     public SongEntity() {
     }
 
-    public SongEntity(int id, String docId, String title, String image, String url, String artist, boolean latest, boolean featured, int count, int page, int type) {
+    public SongEntity(int id, String docId, String title, String image, String url, String artist, boolean latest, boolean featured, int count, int page, int type, long createAt) {
         this.id = id;
         this.docId = docId;
         this.title = title;
@@ -38,6 +40,7 @@ public class SongEntity{
         this.count = count;
         this.page = page;
         this.type = type;
+        this.createAt = createAt;
     }
 
     public int getId() {
@@ -126,6 +129,14 @@ public class SongEntity{
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public long getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(long createAt) {
+        this.createAt = createAt;
     }
 
     @Override

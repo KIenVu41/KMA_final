@@ -22,6 +22,7 @@ import com.kma.demo.utils.StorageUtil;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -282,8 +283,9 @@ public class SongRepositoryImpl implements SongRepository {
 
     @Override
     public Completable insertSongs(List<Song> songList, int page, int type) {
+        long createAt = System.currentTimeMillis();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            List<SongEntity> songEntities = songList.stream().map(dto -> SongMapper.getInstance().toEntity(dto, page, type)).collect(Collectors.toList());
+            List<SongEntity> songEntities = songList.stream().map(dto -> SongMapper.getInstance().toEntity(dto, page, type, createAt)).collect(Collectors.toList());
             return songDatabase.songDao().insertSongs(songEntities);
         }
         return null;
@@ -309,8 +311,9 @@ public class SongRepositoryImpl implements SongRepository {
 
     @Override
     public Completable insertAllSongs(List<Song> songList, int page, int type) {
+        long createAt = System.currentTimeMillis();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            List<AllEntity> songEntities = songList.stream().map(dto -> SongMapper.getInstance().toAllEntity(dto, page, type)).collect(Collectors.toList());
+            List<AllEntity> songEntities = songList.stream().map(dto -> SongMapper.getInstance().toAllEntity(dto, page, type, createAt)).collect(Collectors.toList());
             return songDatabase.allSongDao().insertSongs(songEntities);
         }
         return null;
@@ -336,8 +339,9 @@ public class SongRepositoryImpl implements SongRepository {
 
     @Override
     public Completable insertFeaturedSongs(List<Song> songList, int page, int type) {
+        long createAt = System.currentTimeMillis();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            List<FeaturedEntity> songEntities = songList.stream().map(dto -> SongMapper.getInstance().toFeaturedEntity(dto, page, type)).collect(Collectors.toList());
+            List<FeaturedEntity> songEntities = songList.stream().map(dto -> SongMapper.getInstance().toFeaturedEntity(dto, page, type, createAt)).collect(Collectors.toList());
             return songDatabase.featuredDao().insertSongs(songEntities);
         }
         return null;
@@ -363,8 +367,9 @@ public class SongRepositoryImpl implements SongRepository {
 
     @Override
     public Completable insertLatestSongs(List<Song> songList, int page, int type) {
+        long createAt = System.currentTimeMillis();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            List<LatestEntity> songEntities = songList.stream().map(dto -> SongMapper.getInstance().toLatestEntity(dto, page, type)).collect(Collectors.toList());
+            List<LatestEntity> songEntities = songList.stream().map(dto -> SongMapper.getInstance().toLatestEntity(dto, page, type, createAt)).collect(Collectors.toList());
             return songDatabase.latestDao().insertSongs(songEntities);
         }
         return null;
@@ -390,8 +395,9 @@ public class SongRepositoryImpl implements SongRepository {
 
     @Override
     public Completable insertPopularSongs(List<Song> songList, int page, int type) {
+        long createAt = System.currentTimeMillis();
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            List<PopularEntity> songEntities = songList.stream().map(dto -> SongMapper.getInstance().toPopularEntity(dto, page, type)).collect(Collectors.toList());
+            List<PopularEntity> songEntities = songList.stream().map(dto -> SongMapper.getInstance().toPopularEntity(dto, page, type, createAt)).collect(Collectors.toList());
             return songDatabase.popularDao().insertSongs(songEntities);
         }
         return null;
@@ -400,6 +406,15 @@ public class SongRepositoryImpl implements SongRepository {
     @Override
     public Completable deletePopularByPage(int page) {
         return songDatabase.popularDao().deleteByPage(page);
+    }
+
+    @Override
+    public void deleteOldRecord(long createAt) {
+        songDatabase.songDao().deleteOldRecords(createAt);
+        songDatabase.allSongDao().deleteOldRecords(createAt);
+        songDatabase.latestDao().deleteOldRecords(createAt);
+        songDatabase.featuredDao().deleteOldRecords(createAt);
+        songDatabase.popularDao().deleteOldRecords(createAt);
     }
 
     @Override

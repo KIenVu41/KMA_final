@@ -10,6 +10,7 @@ import com.kma.demo.data.network.ApiService;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
@@ -19,6 +20,8 @@ import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
 import okhttp3.Cache;
+import okhttp3.ConnectionPool;
+import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -38,12 +41,21 @@ public class NetworkModule {
         return interceptor;
     }
 
+    @Provides
+    @Singleton
+    public static ConnectionPool provideConnectionPool() {
+        ConnectionPool connectionPool = new ConnectionPool(5, 5, TimeUnit.MINUTES);
+        return connectionPool;
+    }
+
     @Singleton
     @Provides
-    public static OkHttpClient provideOkHttpClient(HttpLoggingInterceptor interceptor) {
+    public static OkHttpClient provideOkHttpClient(HttpLoggingInterceptor interceptor, ConnectionPool connectionPool) {
         return new OkHttpClient.Builder()
                 .addInterceptor(interceptor)
                 .connectTimeout(5, MINUTES)
+                .connectionPool(connectionPool)
+                //.connectionSpecs(Collections.singletonList(ConnectionSpec.COMPATIBLE_TLS))
                 .readTimeout(5, MINUTES)
                 .writeTimeout(5, MINUTES)
                 .retryOnConnectionFailure(true)

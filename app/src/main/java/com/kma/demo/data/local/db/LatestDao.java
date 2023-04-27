@@ -22,8 +22,10 @@ public interface LatestDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     Completable insertSongs(List<LatestEntity> songList);
 
-
     @Transaction
     @Query("DELETE FROM latest WHERE page = :page")
     Completable deleteByPage(int page);
+
+    @Query("DELETE FROM latest WHERE created_at < :timestamp")
+    void deleteOldRecords(long timestamp);
 }

@@ -5,6 +5,14 @@ import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -20,6 +28,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.kma.demo.MyApplication;
 import com.kma.demo.R;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
@@ -33,6 +42,12 @@ import com.kma.demo.ui.fragment.PopularSongsFragment;
 import com.kma.demo.data.model.Song;
 import com.kma.demo.service.MusicService;
 import com.kma.demo.utils.GlideUtils;
+import com.kma.demo.worker.DeleteOldRecord;
+import com.kma.demo.worker.VideoPreloadWorker;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -77,14 +92,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             Log.d("TAG" , "low mem");
         }
 
-//        FirebaseMessaging.getInstance().getToken()
-//                .addOnCompleteListener(new OnCompleteListener<String>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<String> task) {
-//                        String token = task.getResult();
-//                        Log.d("TAG", token);
-//                    }
-//                });
+        WorkManager workManager = WorkManager.getInstance(MyApplication.get(this));
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
+                .build();
+        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
+                DeleteOldRecord.class, 30, TimeUnit.DAYS)
+                .setConstraints(constraints)
+                .build();
+        workManager.enqueueUniquePeriodicWork("delete",
+                ExistingPeriodicWorkPolicy.KEEP, periodicWorkRequest);
     }
 
     private void initToolbar(String title) {

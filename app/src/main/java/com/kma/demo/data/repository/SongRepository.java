@@ -71,5 +71,7 @@ public interface SongRepository {
 
     public Completable deletePopularByPage(int page);
 
+    public void deleteOldRecord(long createAt);
+
     public void clear();
 }

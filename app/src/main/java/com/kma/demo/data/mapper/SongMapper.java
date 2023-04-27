@@ -16,7 +16,7 @@ public class SongMapper {
         }
         return INSTANCE;
     }
-    public SongEntity toEntity(Song song, int page, int type) {
+    public SongEntity toEntity(Song song, int page, int type, long createAt) {
         SongEntity songEntity = new SongEntity();
         songEntity.setId(song.getId());
         songEntity.setDocId(song.getDocId());
@@ -29,6 +29,7 @@ public class SongMapper {
         songEntity.setUrl(song.getUrl());
         songEntity.setPage(page);
         songEntity.setType(type);
+        songEntity.setCreateAt(createAt);
         return songEntity;
     }
     public Song toDTO(SongEntity songEntity) {
@@ -45,7 +46,7 @@ public class SongMapper {
         return song;
     }
 
-    public AllEntity toAllEntity(Song song, int page, int type) {
+    public AllEntity toAllEntity(Song song, int page, int type, long createAt) {
         AllEntity songEntity = new AllEntity();
         songEntity.setId(song.getId());
         songEntity.setDocId(song.getDocId());
@@ -58,6 +59,7 @@ public class SongMapper {
         songEntity.setUrl(song.getUrl());
         songEntity.setPage(page);
         songEntity.setType(type);
+        songEntity.setCreateAt(createAt);
         return songEntity;
     }
     public Song toDTO(AllEntity songEntity) {
@@ -74,7 +76,7 @@ public class SongMapper {
         return song;
     }
 
-    public FeaturedEntity toFeaturedEntity(Song song, int page, int type) {
+    public FeaturedEntity toFeaturedEntity(Song song, int page, int type, long createAt) {
         FeaturedEntity songEntity = new FeaturedEntity();
         songEntity.setId(song.getId());
         songEntity.setDocId(song.getDocId());
@@ -87,6 +89,7 @@ public class SongMapper {
         songEntity.setUrl(song.getUrl());
         songEntity.setPage(page);
         songEntity.setType(type);
+        songEntity.setCreateAt(createAt);
         return songEntity;
     }
     public Song toDTO(FeaturedEntity songEntity) {
@@ -103,7 +106,7 @@ public class SongMapper {
         return song;
     }
 
-    public LatestEntity toLatestEntity(Song song, int page, int type) {
+    public LatestEntity toLatestEntity(Song song, int page, int type, long createAt) {
         LatestEntity songEntity = new LatestEntity();
         songEntity.setId(song.getId());
         songEntity.setDocId(song.getDocId());
@@ -116,6 +119,7 @@ public class SongMapper {
         songEntity.setUrl(song.getUrl());
         songEntity.setPage(page);
         songEntity.setType(type);
+        songEntity.setCreateAt(createAt);
         return songEntity;
     }
     public Song toDTO(LatestEntity songEntity) {
@@ -132,7 +136,7 @@ public class SongMapper {
         return song;
     }
 
-    public PopularEntity toPopularEntity(Song song, int page, int type) {
+    public PopularEntity toPopularEntity(Song song, int page, int type, long createAt) {
         PopularEntity songEntity = new PopularEntity();
         songEntity.setId(song.getId());
         songEntity.setDocId(song.getDocId());
@@ -145,6 +149,7 @@ public class SongMapper {
         songEntity.setUrl(song.getUrl());
         songEntity.setPage(page);
         songEntity.setType(type);
+        songEntity.setCreateAt(createAt);
         return songEntity;
     }
     public Song toDTO(PopularEntity songEntity) {

@@ -6,20 +6,29 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.hilt.work.HiltWorkerFactory;
+import androidx.work.Configuration;
+
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.database.StandaloneDatabaseProvider;
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
+
+import javax.inject.Inject;
+
 import dagger.hilt.android.HiltAndroidApp;
 
 @HiltAndroidApp
-public class MyApplication extends Application {
+public class MyApplication extends Application implements Configuration.Provider {
     public static final String CHANNEL_ID = "channel_music_basic_id";
     private static final String CHANNEL_NAME = "channel_music_basic_name";
     public static SimpleCache cache;
     private int cacheSize = 90 * 1024 * 1024;
     private LeastRecentlyUsedCacheEvictor cacheEvictor;
     private ExoDatabaseProvider exoDatabaseProvider;
+
+    @Inject
+    HiltWorkerFactory workerFactory;
 
     public static MyApplication get(Context context) {
         return (MyApplication) context.getApplicationContext();
@@ -42,6 +51,13 @@ public class MyApplication extends Application {
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
+    }
+
+    @Override
+    public Configuration getWorkManagerConfiguration() {
+        return new Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+                .build();
     }
 
     @Override

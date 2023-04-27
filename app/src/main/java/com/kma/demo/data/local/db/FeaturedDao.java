@@ -24,4 +24,7 @@ public interface FeaturedDao {
     @Transaction
     @Query("DELETE FROM featured WHERE page = :page")
     Completable deleteByPage(int page);
+
+    @Query("DELETE FROM featured WHERE created_at < :timestamp")
+    void deleteOldRecords(long timestamp);
 }

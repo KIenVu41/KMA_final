@@ -1,5 +1,6 @@
 package com.kma.demo.data.local.entity;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -18,10 +19,12 @@ public class FeaturedEntity {
     private int page;
     private int type;
 
+    @ColumnInfo(name = "created_at")
+    private long createAt;
     public FeaturedEntity() {
     }
 
-    public FeaturedEntity(int id, String docId, String title, String image, String url, String artist, boolean latest, boolean featured, int count, int page, int type) {
+    public FeaturedEntity(int id, String docId, String title, String image, String url, String artist, boolean latest, boolean featured, int count, int page, int type, long createAt) {
         this.id = id;
         this.docId = docId;
         this.title = title;
@@ -33,6 +36,7 @@ public class FeaturedEntity {
         this.count = count;
         this.page = page;
         this.type = type;
+        this.createAt = createAt;
     }
 
     public int getId() {
@@ -121,5 +125,13 @@ public class FeaturedEntity {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public long getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(long createAt) {
+        this.createAt = createAt;
     }
 }

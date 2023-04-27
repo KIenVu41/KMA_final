@@ -24,4 +24,7 @@ public interface PopularDao {
     @Transaction
     @Query("DELETE FROM popular WHERE page = :page")
     Completable deleteByPage(int page);
+
+    @Query("DELETE FROM popular WHERE created_at < :timestamp")
+    void deleteOldRecords(long timestamp);
 }

@@ -58,6 +58,10 @@
             android:name=".ui.activity.PlayMusicActivity"
             android:configChanges="orientation|screenSize|layoutDirection"/>
 
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="com.kma.demo.workmanager-init"
+            tools:node="remove" />
     </application>
 
 </manifest>

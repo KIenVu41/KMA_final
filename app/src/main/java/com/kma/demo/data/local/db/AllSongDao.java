@@ -26,4 +26,7 @@ public interface AllSongDao {
     @Transaction
     @Query("DELETE FROM all_song WHERE page = :page")
     Completable deleteByPage(int page);
+
+    @Query("DELETE FROM all_song WHERE created_at < :timestamp")
+    void deleteOldRecords(long timestamp);
 }
