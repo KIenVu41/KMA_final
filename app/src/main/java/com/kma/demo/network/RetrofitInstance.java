@@ -19,8 +19,8 @@ public class RetrofitInstance {
 
             httpClientBuilder = new OkHttpClient.Builder()
                     .addInterceptor(interceptor)
-                    .connectTimeout(1, MINUTES)
-                    .readTimeout(30, SECONDS);
+                    .connectTimeout(5, MINUTES)
+                    .readTimeout(5, MINUTES);
 //                    .writeTimeout(15, SECONDS);
 
             retrofit = new Retrofit.Builder()

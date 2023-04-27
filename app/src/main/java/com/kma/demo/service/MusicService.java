@@ -252,20 +252,12 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mAction = Constant.PLAY;
         sendMusicNotification();
         sendBroadcastChangeListener();
-        if(!isLibrary) {
-            changeCountViewSong();
-        }
     }
 
     private void sendBroadcastChangeListener() {
         Intent intent = new Intent(Constant.CHANGE_LISTENER);
         intent.putExtra(Constant.MUSIC_ACTION, mAction);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    private void changeCountViewSong() {
-        String songId = mListSongPlaying.get(mSongPosition).getDocId();
-        songController.updateCount(songId);
     }
 
     @Override
