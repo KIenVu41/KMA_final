@@ -55,7 +55,6 @@ public class NetworkModule {
                 .addInterceptor(interceptor)
                 .connectTimeout(5, MINUTES)
                 .connectionPool(connectionPool)
-                //.connectionSpecs(Collections.singletonList(ConnectionSpec.COMPATIBLE_TLS))
                 .readTimeout(5, MINUTES)
                 .writeTimeout(5, MINUTES)
                 .retryOnConnectionFailure(true)

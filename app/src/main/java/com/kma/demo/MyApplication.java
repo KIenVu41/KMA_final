@@ -9,6 +9,7 @@ import android.os.Build;
 import androidx.hilt.work.HiltWorkerFactory;
 import androidx.work.Configuration;
 
+import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.database.StandaloneDatabaseProvider;
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
@@ -61,7 +62,8 @@ public class MyApplication extends Application implements Configuration.Provider
     }
 
     @Override
-    public void onLowMemory() {
-        super.onLowMemory();
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        Glide.get(this).trimMemory(level);
     }
 }
