@@ -44,7 +44,7 @@ public class NetworkModule {
     @Provides
     @Singleton
     public static ConnectionPool provideConnectionPool() {
-        ConnectionPool connectionPool = new ConnectionPool(5, 5, TimeUnit.MINUTES);
+        ConnectionPool connectionPool = new ConnectionPool(5, 10, TimeUnit.MINUTES);
         return connectionPool;
     }
 

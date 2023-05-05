@@ -24,7 +24,7 @@ public class MyApplication extends Application implements Configuration.Provider
     public static final String CHANNEL_ID = "channel_music_basic_id";
     private static final String CHANNEL_NAME = "channel_music_basic_name";
     public static SimpleCache cache;
-    private int cacheSize = 90 * 1024 * 1024;
+    private int cacheSize = 30 * 1024 * 1024;
     private LeastRecentlyUsedCacheEvictor cacheEvictor;
     private ExoDatabaseProvider exoDatabaseProvider;
 

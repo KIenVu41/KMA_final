@@ -270,7 +270,7 @@ public class FeaturedSongsFragment extends Fragment {
                 .setConstraints(constraints)
                 .setInputData(new Data.Builder().putString("AUDIO_URL", url).build())
                 .build();
-        workManager.enqueueUniqueWork("MusicPreloadWorker",
+        workManager.enqueueUniqueWork("MusicPreloadWorker" + url,
                 ExistingWorkPolicy.KEEP, myWorkRequest);
     }
 
