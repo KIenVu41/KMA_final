@@ -111,6 +111,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     private void playSong() {
+        if(mListSongPlaying == null || mListSongPlaying.size() == 0) {
+            return;
+        }
         String songUrl = mListSongPlaying.get(mSongPosition).getUrl();
         if (!StringUtil.isEmpty(songUrl)) {
             playMediaPlayer(songUrl);

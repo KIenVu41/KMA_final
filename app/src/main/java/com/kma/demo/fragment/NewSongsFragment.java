@@ -26,6 +26,7 @@ import com.kma.demo.R;
 import com.kma.demo.activity.MainActivity;
 import com.kma.demo.activity.PlayMusicActivity;
 import com.kma.demo.adapter.SongAdapter;
+import com.kma.demo.adapter.SongBaseAdapter;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
@@ -44,6 +45,7 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
     private DownloadManager downloadManager;
     private long enqueue = 0;
     private BroadcastReceiver downloadReceiver = null;
+    private SongBaseAdapter songBaseAdapter;
 
     @Nullable
     @Override
@@ -107,11 +109,12 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
         if (getActivity() == null) {
             return;
         }
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        mFragmentNewSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
-
-        SongAdapter songAdapter = new SongAdapter(mListSong, this::goToSongDetail, this::downloadFile);
-        mFragmentNewSongsBinding.rcvData.setAdapter(songAdapter);
+//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+//        mFragmentNewSongsBinding.rcvData.setLayoutManager(linearLayoutManager);
+//
+//        SongAdapter songAdapter = new SongAdapter(mListSong, this::goToSongDetail, this::downloadFile);
+        songBaseAdapter = new SongBaseAdapter(mListSong, this::goToSongDetail, this::downloadFile);
+        mFragmentNewSongsBinding.rcvData.setAdapter(songBaseAdapter);
     }
 
     private void goToSongDetail(@NonNull Song song) {

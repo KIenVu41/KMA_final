@@ -27,6 +27,7 @@ import com.kma.demo.R;
 import com.kma.demo.activity.MainActivity;
 import com.kma.demo.activity.PlayMusicActivity;
 import com.kma.demo.adapter.SongAdapter;
+import com.kma.demo.adapter.SongBaseAdapter;
 import com.kma.demo.constant.Constant;
 import com.kma.demo.constant.GlobalFuntion;
 import com.kma.demo.controller.SongController;
@@ -44,7 +45,8 @@ public class LibraryFragment extends Fragment {
     private FragmentLibraryBinding mFragmentLibraryBinding;
     private List<Song> mListSong;
     private SongController songController;
-    private SongAdapter songAdapter;
+    //private SongAdapter songAdapter;
+    private SongBaseAdapter songBaseAdapter;
 
     @Nullable
     @Override
@@ -72,11 +74,12 @@ public class LibraryFragment extends Fragment {
         if (getActivity() == null) {
             return;
         }
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        mFragmentLibraryBinding.rcvData.setLayoutManager(linearLayoutManager);
-
-        songAdapter = new SongAdapter(mListSong, this::goToSongDetail, null);
-        mFragmentLibraryBinding.rcvData.setAdapter(songAdapter);
+//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+//        mFragmentLibraryBinding.rcvData.setLayoutManager(linearLayoutManager);
+//
+//        songAdapter = new SongAdapter(mListSong, this::goToSongDetail, null);
+        songBaseAdapter = new SongBaseAdapter(mListSong, this::goToSongDetail, null);
+        mFragmentLibraryBinding.rcvData.setAdapter(songBaseAdapter);
     }
 
     private void goToSongDetail(@NonNull Song song) {

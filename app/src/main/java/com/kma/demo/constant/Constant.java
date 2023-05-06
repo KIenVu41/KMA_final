@@ -8,7 +8,7 @@ public class Constant {
     // Firebase url
     public static final String FIREBASE_URL = "https://musicbasic-251ca-default-rtdb.firebaseio.com";
     //public static final String BASE_URL = "http://10.0.2.2:3000/api/v1/";
-    public static final String BASE_URL = "http://192.168.0.100:3000/api/v1/";
+    public static final String BASE_URL = "http://192.168.0.101:3000/api/v1/";
     // Max count
     public static final int MAX_COUNT_BANNER = 5;
     public static final int MAX_COUNT_POPULAR = 4;

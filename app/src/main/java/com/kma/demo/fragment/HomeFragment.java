@@ -156,36 +156,6 @@ public class HomeFragment extends Fragment implements SongController.SongCallbac
             return;
         }
         songController.fetchAllData(key);
-//        MyApplication.get(getActivity()).getSongsDatabaseReference().addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                mFragmentHomeBinding.layoutContent.setVisibility(View.VISIBLE);
-//                mListSong = new ArrayList<>();
-//                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-//                    Song song = dataSnapshot.getValue(Song.class);
-//                    if (song == null) {
-//                        return;
-//                    }
-//
-//                    if (StringUtil.isEmpty(key)) {
-//                        mListSong.add(0, song);
-//                    } else {
-//                        if (GlobalFuntion.getTextSearch(song.getTitle()).toLowerCase().trim()
-//                                .contains(GlobalFuntion.getTextSearch(key).toLowerCase().trim())) {
-//                            mListSong.add(0, song);
-//                        }
-//                    }
-//                }
-//                displayListBannerSongs();
-//                displayListPopularSongs();
-//                displayListNewSongs();
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                GlobalFuntion.showToastMessage(getActivity(), getString(R.string.msg_get_date_error));
-//            }
-//        });
     }
 
     private void displayListBannerSongs() {
