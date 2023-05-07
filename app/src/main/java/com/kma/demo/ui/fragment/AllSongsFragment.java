@@ -282,7 +282,7 @@ public class AllSongsFragment extends Fragment {
             MusicService.clearListSongPlaying();
             MusicService.mListSongPlaying.addAll(mListSong);
             MusicService.isPlaying = false;
-            GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
+//            GlobalFuntion.startMusicService(getActivity(), Constant.PLAY, 0);
             GlobalFuntion.startActivity(getActivity(), PlayMusicActivity.class);
         });
     }

@@ -27,8 +27,8 @@ public class SongAdapter extends ListAdapter<Song, SongAdapter.SongViewHolder> {
     public IOnClickSongItemListener iOnClickSongItemDownloadListener;
 
     public SongAdapter(@NonNull DiffUtil.ItemCallback<Song> diffCallback, IOnClickSongItemListener iOnClickSongItemListener, IOnClickSongItemListener iOnClickSongItemDownloadListener) {
-        //super(diffCallback);
-        super(new AsyncDifferConfig.Builder<Song>(new SongDiffUtilCallBack()).setBackgroundThreadExecutor(Executors.newSingleThreadExecutor()).build());
+        super(diffCallback);
+        //super(new AsyncDifferConfig.Builder<Song>(new SongDiffUtilCallBack()).setBackgroundThreadExecutor(Executors.newSingleThreadExecutor()).build());
         this.iOnClickSongItemListener = iOnClickSongItemListener;
         this.iOnClickSongItemDownloadListener = iOnClickSongItemDownloadListener;
     }
