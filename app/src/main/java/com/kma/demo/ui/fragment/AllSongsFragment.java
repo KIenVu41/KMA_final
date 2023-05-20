@@ -138,6 +138,7 @@ public class AllSongsFragment extends Fragment {
                             try {
                                 StorageUtil.convertInputStreamToMp3File((InputStream) resource.data, Constant.songDownloadName + ".mp3");
                             } catch (IOException e) {
+                                Log.d("TAG", "loi tai " + e.getMessage());
                                 e.printStackTrace();
                             }
                             hideErrorMessage();
@@ -173,6 +174,9 @@ public class AllSongsFragment extends Fragment {
 
     private void createDialogLoadding() {
         if (dialogProgress != null) {
+            return;
+        }
+        if(activity == null || !isAdded()) {
             return;
         }
         LayoutInflater inflater = LayoutInflater.from(activity);

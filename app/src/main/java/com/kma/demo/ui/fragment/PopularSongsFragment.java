@@ -173,6 +173,9 @@ public class PopularSongsFragment extends Fragment {
         if (dialogProgress != null) {
             return;
         }
+        if(activity == null || !isAdded()) {
+            return;
+        }
         LayoutInflater inflater = LayoutInflater.from(activity);
         View dialogViewProgress = inflater.inflate(R.layout.progress_loading, null);
         dialogProgress = new Dialog(activity, R.style.MyDialogTheme);
