@@ -39,6 +39,8 @@
     <string name="msg_exit_app">Are you sure you want to exit?</string>
     <string name="msg_get_date_error">General error, please try again later</string>
     <string name="msg_no_internet">No internet Access</string>
+    <string name="TEXT_DOWNLOADING">Đang tải...</string>
+    <string name="TEXT_LOADING">Đang xử lý &#8230;</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

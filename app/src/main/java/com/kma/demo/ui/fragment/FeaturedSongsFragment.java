@@ -1,18 +1,24 @@
 package com.kma.demo.ui.fragment;
 
+import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AbsListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,6 +37,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.kma.demo.MyApplication;
+import com.kma.demo.R;
 import com.kma.demo.data.repository.SongRepository;
 import com.kma.demo.ui.activity.MainActivity;
 import com.kma.demo.ui.activity.PlayMusicActivity;
@@ -66,6 +73,7 @@ public class FeaturedSongsFragment extends Fragment {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
     private MainActivity activity;
+    private Dialog dialogProgress;
     private SongViewModel songViewModel;
     private List<Song> mListSong = new ArrayList<>();
     private SongAdapter songAdapter;
@@ -131,17 +139,22 @@ public class FeaturedSongsFragment extends Fragment {
                                 e.printStackTrace();
                             }
                             hideErrorMessage();
-                            hideProgressBar();
+                            //hideProgressBar();
+                            dimissDialogLoadding();
                         }
                         Constant.isDownloading = false;
                         break;
                     case LOADING:
                         Constant.isDownloading = true;
-                        showProgressBar();
+                        //showProgressBar();
+                        if(!activity.isFinishing()) {
+                            dialogProgress.show();
+                        }
                         break;
                     case ERROR:
                         Constant.isDownloading = false;
-                        hideProgressBar();
+                        //hideProgressBar();
+                        dimissDialogLoadding();
                         if(resource.message != null) {
                             showErrorMessage(resource.message);
                         }
@@ -151,8 +164,48 @@ public class FeaturedSongsFragment extends Fragment {
 
         getListFeaturedSongs();
         initListener();
+        createDialogLoadding();
 
         return mFragmentFeaturedSongsBinding.getRoot();
+    }
+
+    private void createDialogLoadding() {
+        if (dialogProgress != null) {
+            return;
+        }
+        LayoutInflater inflater = LayoutInflater.from(activity);
+        View dialogViewProgress = inflater.inflate(R.layout.progress_loading, null);
+        dialogProgress = new Dialog(activity, R.style.MyDialogTheme);
+        dialogProgress.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialogProgress.setContentView(dialogViewProgress);
+        TextView title = (TextView) dialogViewProgress
+                .findViewById(R.id.title_progress);
+        title.setText(this.getResources().getString(R.string.TEXT_LOADING));
+        dialogProgress.setCanceledOnTouchOutside(true);
+        dialogProgress.getWindow().setGravity(Gravity.CENTER);
+        dialogProgress.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+            }
+        });
+        dialogProgress.setOnKeyListener(new DialogInterface.OnKeyListener() {
+
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode,
+                                 KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    if (dialogProgress != null && dialogProgress.isShowing())
+                        dialogProgress.dismiss();
+                }
+                return true;
+            }
+        });
+    }
+
+    private void dimissDialogLoadding() {
+        if (dialogProgress != null && dialogProgress.isShowing()) {
+            dialogProgress.dismiss();
+        }
     }
 
     private void hideProgressBar() {
@@ -301,5 +354,7 @@ public class FeaturedSongsFragment extends Fragment {
         super.onDestroyView();
         activity.getActivityMainBinding().header.layoutPlayAll.setOnClickListener(null);
         songAdapter.setCallback(null);
+        dimissDialogLoadding();
+        dialogProgress = null;
     }
 }

@@ -44,7 +44,7 @@ public class StorageUtil {
 
     public static String getFileExtension(String fileName) {
         if (fileName == null) {
-            throw new IllegalArgumentException("fileName must not be null!");
+            return "";
         }
 
         String extension = "";
