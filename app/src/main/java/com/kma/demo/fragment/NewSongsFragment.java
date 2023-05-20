@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -50,6 +51,7 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
     private MainActivity activity;
     private Dialog dialogProgress;
     private SongBaseAdapter songBaseAdapter;
+    private long start, end;
 
     @Nullable
     @Override
@@ -153,9 +155,12 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
     public void onFetchProgress(int mode) {
         if(mode == 0) {
             if(!activity.isFinishing()) {
+                start = System.currentTimeMillis();
                 dialogProgress.show();
             }
         } else {
+            end = System.currentTimeMillis();
+            Log.d("TAG", "Execution time: " + (end - start)/1000 + "s");
             dimissDialogLoadding();
         }
     }

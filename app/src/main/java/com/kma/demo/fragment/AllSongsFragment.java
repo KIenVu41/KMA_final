@@ -52,6 +52,7 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
     private SongBaseAdapter songBaseAdapter;
     private MainActivity activity;
     private Dialog dialogProgress;
+    private long start, end;
 
     @Nullable
     @Override
@@ -155,9 +156,12 @@ public class AllSongsFragment extends Fragment implements SongController.SongCal
     public void onFetchProgress(int mode) {
         if(mode == 0) {
             if(!activity.isFinishing()) {
+                start = System.currentTimeMillis();
                 dialogProgress.show();
             }
         } else {
+            end = System.currentTimeMillis();
+            Log.d("TAG", "Execution time: " + (end - start)/1000 + "s");
             dimissDialogLoadding();
         }
     }
