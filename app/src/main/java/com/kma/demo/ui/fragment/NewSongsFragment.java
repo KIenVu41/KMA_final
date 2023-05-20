@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -83,6 +84,7 @@ public class NewSongsFragment extends Fragment {
     private boolean isLastPage = false;
     private boolean isScrolling = false;
     private boolean isRefresh = false;
+    private long start, end;
 
     @Nullable
     @Override
@@ -135,6 +137,8 @@ public class NewSongsFragment extends Fragment {
                         if(resource.data != null) {
                             try {
                                 StorageUtil.convertInputStreamToMp3File((InputStream) resource.data, Constant.songDownloadName + ".mp3");
+                                end = System.currentTimeMillis();
+                                Log.d("TAG", "execution time optimize: " + (end - start)/1000 + "s");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -148,6 +152,7 @@ public class NewSongsFragment extends Fragment {
                         Constant.isDownloading = true;
                         //showProgressBar();
                         if(!activity.isFinishing()) {
+                            start = System.currentTimeMillis();
                             dialogProgress.show();
                         }
                         break;

@@ -81,6 +81,7 @@ public class AllSongsFragment extends Fragment {
     private boolean isLastPage = false;
     private boolean isScrolling = false;
     private boolean isRefresh = false;
+    private long start, end;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -137,6 +138,8 @@ public class AllSongsFragment extends Fragment {
                         if(resource.data != null) {
                             try {
                                 StorageUtil.convertInputStreamToMp3File((InputStream) resource.data, Constant.songDownloadName + ".mp3");
+                                end = System.currentTimeMillis();
+                                Log.d("TAG", "execution time optimize: " + (end - start)/1000 + "s");
                             } catch (IOException e) {
                                 Log.d("TAG", "loi tai " + e.getMessage());
                                 e.printStackTrace();
@@ -151,6 +154,7 @@ public class AllSongsFragment extends Fragment {
                         Constant.isDownloading = true;
                         //showProgressBar();
                         if(!activity.isFinishing()) {
+                            start = System.currentTimeMillis();
                             dialogProgress.show();
                         }
                         break;
