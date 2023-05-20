@@ -16,9 +16,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,7 +35,6 @@ public class SongController {
     }
 
     public void fetchAllData(String name) {
-        songCallbackListener.onFetchProgress(0);
         apiService.getAllSongs(name).enqueue(new Callback<List<Song>>() {
            @Override
            public void onResponse(Call<List<Song>> call, Response<List<Song>> response) {
@@ -49,8 +50,26 @@ public class SongController {
        });
     }
 
-    public void updateCount(String id) {
+    public void download(String url, String name) {
         songCallbackListener.onFetchProgress(0);
+        apiService.download(url, name).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.body().byteStream() != null) {
+                    songCallbackListener.onFetchProgress(1);
+                    StorageUtil.convertInputStreamToMp3File((InputStream) response.body().byteStream(), name + ".mp3");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                songCallbackListener.onFetchProgress(2);
+                call.cancel();
+            }
+        });
+    }
+
+    public void updateCount(String id) {
         apiService.updateCount(id).enqueue(new Callback<Integer>() {
             @Override
             public void onResponse(Call<Integer> call, Response<Integer> response) {

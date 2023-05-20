@@ -11,6 +11,9 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class StorageUtil {
 
@@ -49,5 +52,39 @@ public class StorageUtil {
 
         return extension;
 
+    }
+
+    public static void convertInputStreamToMp3File(InputStream inputStream, String filePath) {
+        FileOutputStream outputStream = null;
+        try {
+            File downloadFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File outputFile = new File(downloadFolder, filePath);
+
+            outputStream = new FileOutputStream(outputFile);
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally{
+            // Close the input and output streams
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                   e.printStackTrace();
+                }
+            }
+        }
     }
 }

@@ -1,16 +1,21 @@
 package com.kma.demo.fragment;
 
+import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -42,9 +47,8 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
     private FragmentNewSongsBinding mFragmentNewSongsBinding;
     private List<Song> mListSong;
     private SongController songController;
-    private DownloadManager downloadManager;
-    private long enqueue = 0;
-    private BroadcastReceiver downloadReceiver = null;
+    private MainActivity activity;
+    private Dialog dialogProgress;
     private SongBaseAdapter songBaseAdapter;
 
     @Nullable
@@ -54,25 +58,9 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
 
         songController = new SongController(this);
 
-        if(downloadReceiver == null) {
-            downloadReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    String action = intent.getAction();
-                    if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)) {
-                        if(isAdded()) {
-                            Toast.makeText(requireActivity(), "Download successfully", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                    requireActivity().unregisterReceiver(this);
-                }
-            };
-
-            requireActivity().registerReceiver(downloadReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-        }
-
         getListNewSongs();
         initListener();
+        createDialogLoadding();
 
         return mFragmentNewSongsBinding.getRoot();
     }
@@ -82,27 +70,45 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
             return;
         }
         songController.fetchAllData("");
-//        MyApplication.get(getActivity()).getSongsDatabaseReference().addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                mListSong = new ArrayList<>();
-//                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-//                    Song song = dataSnapshot.getValue(Song.class);
-//                    if (song == null) {
-//                        return;
-//                    }
-//                    if (song.isLatest()) {
-//                        mListSong.add(0, song);
-//                    }
-//                }
-//                displayListNewSongs();
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                GlobalFuntion.showToastMessage(getActivity(), getString(R.string.msg_get_date_error));
-//            }
-//        });
+    }
+
+    private void createDialogLoadding() {
+        if (dialogProgress != null) {
+            return;
+        }
+        if(activity == null || !isAdded()) {
+            return;
+        }
+        LayoutInflater inflater = LayoutInflater.from(activity);
+        View dialogViewProgress = inflater.inflate(R.layout.progress_loading, null);
+        dialogProgress = new Dialog(activity, R.style.MyDialogTheme);
+        dialogProgress.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialogProgress.setContentView(dialogViewProgress);
+        dialogProgress.setCanceledOnTouchOutside(true);
+        dialogProgress.getWindow().setGravity(Gravity.CENTER);
+        dialogProgress.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+            }
+        });
+        dialogProgress.setOnKeyListener(new DialogInterface.OnKeyListener() {
+
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode,
+                                 KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    if (dialogProgress != null && dialogProgress.isShowing())
+                        dialogProgress.dismiss();
+                }
+                return true;
+            }
+        });
+    }
+
+    private void dimissDialogLoadding() {
+        if (dialogProgress != null && dialogProgress.isShowing()) {
+            dialogProgress.dismiss();
+        }
     }
 
     private void displayListNewSongs() {
@@ -126,20 +132,7 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
     }
 
     private void downloadFile(@NonNull Song song) {
-        downloadManager = (DownloadManager) requireActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(song.getUrl()));
-
-        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI)
-                .setTitle(song.getTitle() + ".mp3")
-                .setDescription(song.getTitle() + "-" + song.getArtist())
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, song.getTitle() + ".mp3")
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-
-        enqueue = downloadManager.enqueue(request);
-
-        Intent i = new Intent();
-        i.setAction(DownloadManager.ACTION_VIEW_DOWNLOADS);
-        startActivity(i);
+        songController.download(song.getUrl(), song.getTitle());
     }
 
     private void initListener() {
@@ -158,7 +151,13 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
 
     @Override
     public void onFetchProgress(int mode) {
-
+        if(mode == 0) {
+            if(!activity.isFinishing()) {
+                dialogProgress.show();
+            }
+        } else {
+            dimissDialogLoadding();
+        }
     }
 
     @Override
@@ -178,5 +177,12 @@ public class NewSongsFragment extends Fragment implements SongController.SongCal
     @Override
     public void onUpdateComplete(int count) {
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        dimissDialogLoadding();
+        dialogProgress = null;
     }
 }
